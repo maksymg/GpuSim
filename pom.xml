@@ -18,7 +18,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.mgnyniuk.AdvancedAreaChartSample</mainClass>
+                            <mainClass>com.mgnyniuk.ui.MainWindow</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
