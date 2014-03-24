@@ -1,6 +1,7 @@
 package com.mgnyniuk.ui;
 
 import com.mgnyniuk.core.ConfigGenerator;
+import com.mgnyniuk.core.ExperimentRunner;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,6 +34,7 @@ public class MainWindow extends Application {
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
                 ConfigGenerator.generateMatrixMutiplyConfigs();
+                ExperimentRunner experimentRunner = new ExperimentRunner();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
