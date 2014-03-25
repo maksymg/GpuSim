@@ -31,7 +31,7 @@ public class ExperimentRunner {
 
     public Boolean runExperimnet() throws IOException {
 
-        ConfigurationUtil.serializeConfigs(gridSimConfigList, startIndex);
+        //ConfigurationUtil.serializeConfigs(gridSimConfigList, startIndex);
         ThreadListener threadListener = new ThreadListener();
 
         for (int j = 0; j < overallProcessesQuantity/partProcessesQuantity; j++) {
@@ -45,15 +45,10 @@ public class ExperimentRunner {
             }
 
             while (threadListener.quantityOfEndedThreads != partProcessesQuantity) {
-
                 System.out.print(threadListener.quantityOfEndedThreads);
                 continue;
-
             }
-
             threadListener.quantityOfEndedThreads = 0;
-
-
         }
 
         //ConfigurationUtil.loadOutputs(startIndex,partProcessesQuantity);
