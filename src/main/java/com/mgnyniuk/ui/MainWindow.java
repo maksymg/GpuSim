@@ -12,9 +12,11 @@ import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -50,9 +52,14 @@ public class MainWindow extends Application {
         });
         newExperimentBtn.setGraphic(newBtn);
 
+        // GridPane for inputs
+        GridPane inputsGridPane = new GridPane();
+        inputsGridPane.setVisible(false);
+
         // Show results of simulation
         Button showResultsBtn = new Button("Show Results");
         showResultsBtn.setOnAction(actionEvent -> {
+            inputsGridPane.setVisible(true);
             Group resultsRoot = new Group();
             Stage resultsStage = new Stage();
             resultsStage.setScene(new Scene(resultsRoot));
@@ -66,10 +73,62 @@ public class MainWindow extends Application {
         });
 
         // HBox with spacing 5
-        HBox hBox = new HBox(5);
-        hBox.getChildren().addAll(newExperimentBtn, showResultsBtn);
-        hBox.setAlignment(Pos.TOP_LEFT);
-        root.getChildren().add(hBox);
+        HBox buttonsHBox = new HBox(5);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, showResultsBtn);
+        buttonsHBox.setAlignment(Pos.TOP_LEFT);
+
+        GridPane masterGridPane = new GridPane();
+        masterGridPane.add(buttonsHBox, 1, 1);
+
+        // Inputs and labels for settings
+        Label mainParametersLbl = new Label("Основні параметри експеременту:");
+
+        Label experimentNameLbl = new Label("Ім'я:");
+        TextField experimentNameTextField = new TextField("<No Experiment Name>");
+
+        Label experimentDescriptionLbl = new Label("Опис:");
+        TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
+
+        Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
+
+        Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
+        TextField minMatrixTextField = new TextField();
+
+        Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
+        TextField maxMatrixSizeTextField = new TextField();
+
+        Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
+        TextField matrixSizeIncrementTextField = new TextField();
+
+        Label blockSizeLbl = new Label("Розмір блоку:");
+        TextField blockSizeTextField = new TextField();
+
+        inputsGridPane.add(mainParametersLbl, 1, 1);
+        inputsGridPane.setColumnSpan(mainParametersLbl, 2);
+
+        inputsGridPane.add(experimentNameLbl, 1, 2);
+        inputsGridPane.add(experimentNameTextField, 2, 2);
+
+        inputsGridPane.add(experimentDescriptionLbl, 1, 3);
+        inputsGridPane.add(experimentDescriptionTextField, 2, 3);
+
+        inputsGridPane.add(experimentConditionsLbl, 1, 4);
+        inputsGridPane.setColumnSpan(experimentConditionsLbl, 2);
+
+        inputsGridPane.add(minMatrixSizeLbl, 1, 5);
+        inputsGridPane.add(minMatrixTextField, 2, 5);
+
+        inputsGridPane.add(maxMatrixSizeLbl, 1, 6);
+        inputsGridPane.add(maxMatrixSizeTextField, 2, 6);
+
+        inputsGridPane.add(matrixSizeIncrementLbl, 1, 7);
+        inputsGridPane.add(matrixSizeIncrementTextField, 2, 7);
+
+        inputsGridPane.add(blockSizeLbl, 1, 8);
+        inputsGridPane.add(blockSizeTextField, 2, 8);
+
+        masterGridPane.add(inputsGridPane, 1, 2);
+        root.getChildren().add(masterGridPane);
 
     }
 
