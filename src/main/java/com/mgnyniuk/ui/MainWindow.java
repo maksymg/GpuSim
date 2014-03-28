@@ -103,6 +103,9 @@ public class MainWindow extends Application {
         Label blockSizeLbl = new Label("Розмір блоку:");
         TextField blockSizeTextField = new TextField();
 
+        CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+        modelingParametersChkBox.setIndeterminate(false);
+
         inputsGridPane.add(mainParametersLbl, 1, 1);
         inputsGridPane.setColumnSpan(mainParametersLbl, 2);
 
@@ -126,6 +129,10 @@ public class MainWindow extends Application {
 
         inputsGridPane.add(blockSizeLbl, 1, 8);
         inputsGridPane.add(blockSizeTextField, 2, 8);
+
+        inputsGridPane.add(modelingParametersChkBox, 1, 9);
+        inputsGridPane.setColumnSpan(modelingParametersChkBox, 2);
+
 
         masterGridPane.add(inputsGridPane, 1, 2);
         root.getChildren().add(masterGridPane);
