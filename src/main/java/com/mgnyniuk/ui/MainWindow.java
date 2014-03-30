@@ -14,6 +14,8 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -23,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.scene.Group;
 
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +108,26 @@ public class MainWindow extends Application {
 
         CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
         modelingParametersChkBox.setIndeterminate(false);
+
+        Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
+        TextField numberOfCpuTextField = new TextField();
+
+        Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
+        TextField rankOfCpuTextField = new TextField();
+
+        Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
+        TextField numberOfGpuTextField = new TextField();
+
+        Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
+        TextField rankOfGpuTextField = new TextField();
+
+        Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
+        TextField resourceCapacityTextField = new TextField();
+
+        Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
+        TextField linkCapacityTextField = new TextField();
+
+
 
         inputsGridPane.add(mainParametersLbl, 1, 1);
         inputsGridPane.setColumnSpan(mainParametersLbl, 2);
