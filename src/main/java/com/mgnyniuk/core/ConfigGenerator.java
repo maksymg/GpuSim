@@ -16,18 +16,16 @@ import java.util.List;
  */
 public class ConfigGenerator {
 
-    private static double loadOperationCost = 0.0001800;
-    private static double saveOperationCost = 0.0009360;
-
     static List<Integer> blockSizeList = new ArrayList<Integer>();
     static List<Integer> matrixSizeList = new ArrayList<Integer>();
 
     static GridSimResourceConfig gridSimResourceConfig;
 
-    private static void init() {
-        for (int i = 1; i <= 4096 / 16; i++) {
-            matrixSizeList.add(16 * i);
-            blockSizeList.add(16);
+    private static void init(int minMatrixSize, int maxMatrixSize, int matrixSizeIncrement, int blockSize, int numberOfCpu,
+                             int rankOfCpu, int numbreOfGpu, int rankOfGpu, int resourceCapacity) {
+        for (int i = 1; i <= maxMatrixSize / matrixSizeIncrement; i++) {
+            matrixSizeList.add(matrixSizeIncrement * i);
+            blockSizeList.add(blockSize);
         }
 
         gridSimResourceConfig = new GridSimResourceConfig();
@@ -36,32 +34,33 @@ public class ConfigGenerator {
         gridSimResourceConfig.setCostPerSec(1);
         gridSimResourceConfig.setTimeZone(0);
         gridSimResourceConfig.setAllocPolicy(0);
-        gridSimResourceConfig.setBaudRate(10000000000.0);
+        gridSimResourceConfig.setBaudRate(resourceCapacity);
         gridSimResourceConfig.setCount(1);
         gridSimResourceConfig.setMachines(new LinkedList<GridSimMachineConfig>());
 
         // First Machine
         GridSimMachineConfig gridSimMachineConfig1 = new GridSimMachineConfig();
-        gridSimMachineConfig1.setPeCount(384);
-        gridSimMachineConfig1.setPeRating(10000);
+        gridSimMachineConfig1.setPeCount(numbreOfGpu);
+        gridSimMachineConfig1.setPeRating(rankOfGpu);
         gridSimMachineConfig1.setCount(1);
 
         // Second Machine
         GridSimMachineConfig gridSimMachineConfig2 = new GridSimMachineConfig();
-        gridSimMachineConfig2.setPeCount(8);
-        gridSimMachineConfig2.setPeRating(1000);
+        gridSimMachineConfig2.setPeCount(numberOfCpu);
+        gridSimMachineConfig2.setPeRating(rankOfCpu);
         gridSimMachineConfig2.setCount(1);
 
         gridSimResourceConfig.getMachines().add(gridSimMachineConfig1);
         gridSimResourceConfig.getMachines().add(gridSimMachineConfig2);
     }
 
-    public static void generateMatrixMutiplyConfigs() throws Exception {
-        init();
+    public static void generateMatrixMutiplyConfigs(int minMatrixSize, int maxMatrixSize, int matrixSizeIncrement, int blockSize, int numberOfCpu,
+                                                    int rankOfCpu, int numberOfGpu, int rankOfGpu, int resourceCapacity, int linkCapacity, int loadOperationCost, int saveOperationCost) throws Exception {
+        init(minMatrixSize, maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity);
 
         GridSimConfig gridSimConfig = new GridSimConfig();
         gridSimConfig.setVersion(1);
-        gridSimConfig.setLinkBaudRate(10000000000.0);
+        gridSimConfig.setLinkBaudRate(linkCapacity);
         gridSimConfig.setResources(new LinkedList<GridSimResourceConfig>());
         gridSimConfig.getResources().add(gridSimResourceConfig);
         gridSimConfig.setGridlets(new LinkedList<GridSimGridletConfig>());
