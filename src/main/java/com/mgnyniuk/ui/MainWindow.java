@@ -5,6 +5,8 @@ import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -37,9 +39,63 @@ public class MainWindow extends Application {
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
 
+    // Inputs and labels for settings
+    Label mainParametersLbl = new Label("Основні параметри експеременту:");
+
+    Label experimentNameLbl = new Label("Ім'я:");
+    TextField experimentNameTextField = new TextField("<No Experiment Name>");
+
+    Label experimentDescriptionLbl = new Label("Опис:");
+    TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
+
+    Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
+
+    Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
+    TextField minMatrixTextField = new TextField();
+
+    Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
+    TextField maxMatrixSizeTextField = new TextField();
+
+    Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
+    TextField matrixSizeIncrementTextField = new TextField();
+
+    Label blockSizeLbl = new Label("Розмір блоку:");
+    TextField blockSizeTextField = new TextField();
+
+    CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+
+    Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
+    TextField numberOfCpuTextField = new TextField();
+
+    Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
+    TextField rankOfCpuTextField = new TextField();
+
+    Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
+    TextField numberOfGpuTextField = new TextField();
+
+    Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
+    TextField rankOfGpuTextField = new TextField();
+
+    Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
+    TextField resourceCapacityTextField = new TextField();
+
+    Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
+    TextField linkCapacityTextField = new TextField();
+
+    Label loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
+    TextField loadOperationCostTextField = new TextField();
+
+    Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
+    TextField saveOperationCostTextField = new TextField();
+
     private void init(Stage primaryStage) {
         Group root = new Group();
         primaryStage.setScene(new Scene(root, 700, 500));
+
+        // setting modelingParametersChkBox checkBox
+        modelingParametersChkBox.setIndeterminate(false);
+        // set modelingParameters block invisible
+        setVisibleModelingParameterBlock(false);
 
         // New Experiment Button
         ImageView newBtn = new ImageView(NEW_BTN);
@@ -75,6 +131,13 @@ public class MainWindow extends Application {
             resultsStage.show();
         });
 
+        modelingParametersChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> ov,
+                                Boolean old_val, Boolean new_val) {
+                setVisibleModelingParameterBlock(new_val ? true : false);
+            }
+        });
+
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
         buttonsHBox.getChildren().addAll(newExperimentBtn, showResultsBtn);
@@ -82,52 +145,6 @@ public class MainWindow extends Application {
 
         GridPane masterGridPane = new GridPane();
         masterGridPane.add(buttonsHBox, 1, 1);
-
-        // Inputs and labels for settings
-        Label mainParametersLbl = new Label("Основні параметри експеременту:");
-
-        Label experimentNameLbl = new Label("Ім'я:");
-        TextField experimentNameTextField = new TextField("<No Experiment Name>");
-
-        Label experimentDescriptionLbl = new Label("Опис:");
-        TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
-
-        Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
-
-        Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
-        TextField minMatrixTextField = new TextField();
-
-        Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
-        TextField maxMatrixSizeTextField = new TextField();
-
-        Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
-        TextField matrixSizeIncrementTextField = new TextField();
-
-        Label blockSizeLbl = new Label("Розмір блоку:");
-        TextField blockSizeTextField = new TextField();
-
-        CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
-        modelingParametersChkBox.setIndeterminate(false);
-
-        Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
-        TextField numberOfCpuTextField = new TextField();
-
-        Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
-        TextField rankOfCpuTextField = new TextField();
-
-        Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
-        TextField numberOfGpuTextField = new TextField();
-
-        Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
-        TextField rankOfGpuTextField = new TextField();
-
-        Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
-        TextField resourceCapacityTextField = new TextField();
-
-        Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
-        TextField linkCapacityTextField = new TextField();
-
-
 
         inputsGridPane.add(mainParametersLbl, 1, 1);
         inputsGridPane.setColumnSpan(mainParametersLbl, 2);
@@ -156,10 +173,32 @@ public class MainWindow extends Application {
         inputsGridPane.add(modelingParametersChkBox, 1, 9);
         inputsGridPane.setColumnSpan(modelingParametersChkBox, 2);
 
+        inputsGridPane.add(numberOfCpuLbl, 1, 10);
+        inputsGridPane.add(numberOfCpuTextField, 2, 10);
+
+        inputsGridPane.add(rankOfCpuLbl, 1, 11);
+        inputsGridPane.add(rankOfCpuTextField, 2, 11);
+
+        inputsGridPane.add(numberOfGpuLbl, 1, 12);
+        inputsGridPane.add(numberOfGpuTextField, 2, 12);
+
+        inputsGridPane.add(rankOfGpuLbl, 1, 13);
+        inputsGridPane.add(rankOfGpuTextField, 2, 13);
+
+        inputsGridPane.add(resourceCapacityLbl, 1, 14);
+        inputsGridPane.add(resourceCapacityTextField, 2, 14);
+
+        inputsGridPane.add(linkCapacityLbl, 1, 15);
+        inputsGridPane.add(linkCapacityTextField, 2, 15);
+
+        inputsGridPane.add(loadOperationCostLbl, 1, 16);
+        inputsGridPane.add(loadOperationCostTextField, 2, 16);
+
+        inputsGridPane.add(saveOperationCostLbl, 1, 17);
+        inputsGridPane.add(saveOperationCostTextField, 2, 17);
 
         masterGridPane.add(inputsGridPane, 1, 2);
         root.getChildren().add(masterGridPane);
-
     }
 
     protected AreaChart<Number, Number> createResultsChart() throws FileNotFoundException{
@@ -191,6 +230,32 @@ public class MainWindow extends Application {
         ac.getData().add(series);
 
         return ac;
+    }
+
+    private void setVisibleModelingParameterBlock(boolean isVisible) {
+        numberOfCpuLbl.setVisible(isVisible);
+        numberOfCpuTextField.setVisible(isVisible);
+
+        rankOfCpuLbl.setVisible(isVisible);
+        rankOfCpuTextField.setVisible(isVisible);
+
+        numberOfGpuLbl.setVisible(isVisible);
+        numberOfGpuTextField.setVisible(isVisible);
+
+        rankOfGpuLbl.setVisible(isVisible);
+        rankOfGpuTextField.setVisible(isVisible);
+
+        resourceCapacityLbl.setVisible(isVisible);
+        resourceCapacityTextField.setVisible(isVisible);
+
+        linkCapacityLbl.setVisible(isVisible);
+        linkCapacityTextField.setVisible(isVisible);
+
+        loadOperationCostLbl.setVisible(isVisible);
+        loadOperationCostTextField.setVisible(isVisible);
+
+        saveOperationCostLbl.setVisible(isVisible);
+        saveOperationCostTextField.setVisible(isVisible);
     }
 
     @Override
