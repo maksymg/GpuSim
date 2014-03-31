@@ -38,6 +38,7 @@ import java.util.List;
 public class MainWindow extends Application {
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
+    private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
 
     // Inputs and labels for settings
     Label mainParametersLbl = new Label("Основні параметри експеременту:");
@@ -90,7 +91,7 @@ public class MainWindow extends Application {
 
     private void init(Stage primaryStage) {
         Group root = new Group();
-        primaryStage.setScene(new Scene(root, 700, 500));
+        primaryStage.setScene(new Scene(root, 800, 800));
 
         // setting modelingParametersChkBox checkBox
         modelingParametersChkBox.setIndeterminate(false);
@@ -98,22 +99,29 @@ public class MainWindow extends Application {
         setVisibleModelingParameterBlock(false);
 
         // New Experiment Button
-        ImageView newBtn = new ImageView(NEW_BTN);
+        ImageView newBtnImage = new ImageView(NEW_BTN);
         Button newExperimentBtn = new Button();
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
-                ConfigGenerator.generateMatrixMutiplyConfigs();
+                //ConfigGenerator.generateMatrixMutiplyConfigs();
                 ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
                 experimentRunner.runExperimnet();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
         });
-        newExperimentBtn.setGraphic(newBtn);
+        newExperimentBtn.setGraphic(newBtnImage);
+
+        // Run Simulation Button
+        ImageView runSimulationImage = new ImageView(RUN_MODELING);
+        Button runSumulationBtn = new Button();
+        runSumulationBtn.setGraphic(runSimulationImage);
 
         // GridPane for inputs
         GridPane inputsGridPane = new GridPane();
         inputsGridPane.setVisible(false);
+        inputsGridPane.setHgap(5);
+        inputsGridPane.setVgap(5);
 
         // Show results of simulation
         Button showResultsBtn = new Button("Show Results");
@@ -140,7 +148,7 @@ public class MainWindow extends Application {
 
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
-        buttonsHBox.getChildren().addAll(newExperimentBtn, showResultsBtn);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, runSumulationBtn, showResultsBtn);
         buttonsHBox.setAlignment(Pos.TOP_LEFT);
 
         GridPane masterGridPane = new GridPane();
