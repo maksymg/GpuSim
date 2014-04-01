@@ -4,6 +4,7 @@ import com.gpusim2.config.GridSimOutput;
 import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
+import com.sun.javafx.css.converters.StringConverter;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,6 +29,7 @@ import javafx.scene.Group;
 
 
 import java.awt.*;
+import java.awt.geom.Arc2D;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,21 @@ public class MainWindow extends Application {
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
+
+    // default values for matrix multiply task
+    private static final Integer DEFAULT_MIN_MATRIX_SIZE = 16;
+    private static final Integer DEFAULT_MAX_MATRIX_SIZE = 4096;
+    private static final Integer DEFAULT_MATRIX_SIZE_INCREMENT = 16;
+    private static final Integer DEFAULT_BLOCK_SIZE = 16;
+
+    private static final Integer DEFAULT_NUMBER_OF_CPU = 8;
+    private static final Integer DEFAULT_RANK_OF_CPU = 1000;
+    private static final Integer DEFAULT_NUMBER_OF_GPU = 384;
+    private static final Integer DEFAULT_RANK_OF_GPU = 10000;
+    private static final Integer DEFAULT_RESOURCE_CAPACITY = 10000;
+    private static final Integer DEFAULT_LINK_CAPACITY = 10000;
+    private static final Double DEFAULT_LOAD_OPERATION_COST = 0.00018;
+    private static final Double DEFAULT_SAVE_OPERATION_COST = 0.000936;
 
     // Inputs and labels for settings
     Label mainParametersLbl = new Label("Основні параметри експеременту:");
@@ -52,46 +69,52 @@ public class MainWindow extends Application {
     Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
 
     Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
-    TextField minMatrixTextField = new TextField();
+    TextField minMatrixSizeTextField = new TextField(DEFAULT_MIN_MATRIX_SIZE.toString());
 
     Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
-    TextField maxMatrixSizeTextField = new TextField();
+    TextField maxMatrixSizeTextField = new TextField(DEFAULT_MAX_MATRIX_SIZE.toString());
 
     Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
-    TextField matrixSizeIncrementTextField = new TextField();
+    TextField matrixSizeIncrementTextField = new TextField(DEFAULT_MATRIX_SIZE_INCREMENT.toString());
 
     Label blockSizeLbl = new Label("Розмір блоку:");
-    TextField blockSizeTextField = new TextField();
+    TextField blockSizeTextField = new TextField(DEFAULT_BLOCK_SIZE.toString());
 
     CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
 
     Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
-    TextField numberOfCpuTextField = new TextField();
+    TextField numberOfCpuTextField = new TextField(DEFAULT_NUMBER_OF_CPU.toString());
 
     Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
-    TextField rankOfCpuTextField = new TextField();
+    TextField rankOfCpuTextField = new TextField(DEFAULT_RANK_OF_CPU.toString());
 
     Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
-    TextField numberOfGpuTextField = new TextField();
+    TextField numberOfGpuTextField = new TextField(DEFAULT_NUMBER_OF_GPU.toString());
 
     Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
-    TextField rankOfGpuTextField = new TextField();
+    TextField rankOfGpuTextField = new TextField(DEFAULT_RANK_OF_GPU.toString());
 
     Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
-    TextField resourceCapacityTextField = new TextField();
+    TextField resourceCapacityTextField = new TextField(DEFAULT_RESOURCE_CAPACITY.toString());
 
     Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
-    TextField linkCapacityTextField = new TextField();
+    TextField linkCapacityTextField = new TextField(DEFAULT_LINK_CAPACITY.toString());
 
     Label loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
-    TextField loadOperationCostTextField = new TextField();
+    TextField loadOperationCostTextField = new TextField(DEFAULT_LOAD_OPERATION_COST.toString());
 
     Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
-    TextField saveOperationCostTextField = new TextField();
+    TextField saveOperationCostTextField = new TextField(DEFAULT_SAVE_OPERATION_COST.toString());
 
     private void init(Stage primaryStage) {
         Group root = new Group();
         primaryStage.setScene(new Scene(root, 800, 800));
+
+        // GridPane for inputs
+        GridPane inputsGridPane = new GridPane();
+        inputsGridPane.setVisible(false);
+        inputsGridPane.setHgap(5);
+        inputsGridPane.setVgap(5);
 
         // setting modelingParametersChkBox checkBox
         modelingParametersChkBox.setIndeterminate(false);
@@ -104,8 +127,9 @@ public class MainWindow extends Application {
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
                 //ConfigGenerator.generateMatrixMutiplyConfigs();
-                ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
-                experimentRunner.runExperimnet();
+                //ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
+                //experimentRunner.runExperimnet();
+                inputsGridPane.setVisible(true);
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
@@ -115,18 +139,35 @@ public class MainWindow extends Application {
         // Run Simulation Button
         ImageView runSimulationImage = new ImageView(RUN_MODELING);
         Button runSumulationBtn = new Button();
-        runSumulationBtn.setGraphic(runSimulationImage);
+        runSumulationBtn.setOnAction(actionEvent -> {
+            try {
+                int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
+                int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
+                int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
+                int blockSize = Integer.parseInt(blockSizeTextField.getText());
+                int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
+                int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
+                int resourceCapacity = Integer.parseInt(resourceCapacityTextField.getText());
+                int linkCapacity = Integer.parseInt(linkCapacityTextField.getText());
+                double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
+                double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 
-        // GridPane for inputs
-        GridPane inputsGridPane = new GridPane();
-        inputsGridPane.setVisible(false);
-        inputsGridPane.setHgap(5);
-        inputsGridPane.setVgap(5);
+                ConfigGenerator.generateMatrixMutiplyConfigs(minMatrixSize, maxMatrixSize, matrixSizeIncrement,
+                        blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+
+                ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
+                experimentRunner.runExperimnet();
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+        });
+        runSumulationBtn.setGraphic(runSimulationImage);
 
         // Show results of simulation
         Button showResultsBtn = new Button("Show Results");
         showResultsBtn.setOnAction(actionEvent -> {
-            inputsGridPane.setVisible(true);
             Group resultsRoot = new Group();
             Stage resultsStage = new Stage();
             resultsStage.setScene(new Scene(resultsRoot));
@@ -167,7 +208,7 @@ public class MainWindow extends Application {
         inputsGridPane.setColumnSpan(experimentConditionsLbl, 2);
 
         inputsGridPane.add(minMatrixSizeLbl, 1, 5);
-        inputsGridPane.add(minMatrixTextField, 2, 5);
+        inputsGridPane.add(minMatrixSizeTextField, 2, 5);
 
         inputsGridPane.add(maxMatrixSizeLbl, 1, 6);
         inputsGridPane.add(maxMatrixSizeTextField, 2, 6);
@@ -209,7 +250,7 @@ public class MainWindow extends Application {
         root.getChildren().add(masterGridPane);
     }
 
-    protected AreaChart<Number, Number> createResultsChart() throws FileNotFoundException{
+    protected AreaChart<Number, Number> createResultsChart() throws FileNotFoundException {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
@@ -231,8 +272,8 @@ public class MainWindow extends Application {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Time/Matrix Size");
 
-        for (int i=0; i < matrixSizeList.size()-1; i++) {
-            series.getData().add(new XYChart.Data<Number,Number>(matrixSizeList.get(i), outputList.get(i).getTotalSimulationTime()));
+        for (int i = 0; i < matrixSizeList.size() - 1; i++) {
+            series.getData().add(new XYChart.Data<Number, Number>(matrixSizeList.get(i), outputList.get(i).getTotalSimulationTime()));
         }
 
         ac.getData().add(series);
