@@ -31,6 +31,7 @@ import javafx.scene.Group;
 import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.io.FileNotFoundException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +53,8 @@ public class MainWindow extends Application {
     private static final Integer DEFAULT_RANK_OF_CPU = 1000;
     private static final Integer DEFAULT_NUMBER_OF_GPU = 384;
     private static final Integer DEFAULT_RANK_OF_GPU = 10000;
-    private static final Integer DEFAULT_RESOURCE_CAPACITY = 10000;
-    private static final Integer DEFAULT_LINK_CAPACITY = 10000;
+    private static final Double DEFAULT_RESOURCE_CAPACITY = 10000000000.0;
+    private static final Double DEFAULT_LINK_CAPACITY = 10000000000.0;
     private static final Double DEFAULT_LOAD_OPERATION_COST = 0.00018;
     private static final Double DEFAULT_SAVE_OPERATION_COST = 0.000936;
 
@@ -149,8 +150,8 @@ public class MainWindow extends Application {
                 int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
                 int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
                 int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
-                int resourceCapacity = Integer.parseInt(resourceCapacityTextField.getText());
-                int linkCapacity = Integer.parseInt(linkCapacityTextField.getText());
+                double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
+                double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
                 double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
                 double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 

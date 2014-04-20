@@ -22,7 +22,7 @@ public class ConfigGenerator {
     static GridSimResourceConfig gridSimResourceConfig;
 
     private static void init(int minMatrixSize, int maxMatrixSize, int matrixSizeIncrement, int blockSize, int numberOfCpu,
-                             int rankOfCpu, int numbreOfGpu, int rankOfGpu, int resourceCapacity) {
+                             int rankOfCpu, int numbreOfGpu, int rankOfGpu, double resourceCapacity) {
         for (int i = 1; i <= maxMatrixSize / matrixSizeIncrement; i++) {
             matrixSizeList.add(matrixSizeIncrement * i);
             blockSizeList.add(blockSize);
@@ -55,7 +55,7 @@ public class ConfigGenerator {
     }
 
     public static void generateMatrixMutiplyConfigs(int minMatrixSize, int maxMatrixSize, int matrixSizeIncrement, int blockSize, int numberOfCpu,
-                                                    int rankOfCpu, int numberOfGpu, int rankOfGpu, int resourceCapacity, int linkCapacity, double loadOperationCost, double saveOperationCost) throws Exception {
+                                                    int rankOfCpu, int numberOfGpu, int rankOfGpu, double resourceCapacity, double linkCapacity, double loadOperationCost, double saveOperationCost) throws Exception {
         init(minMatrixSize, maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity);
 
         GridSimConfig gridSimConfig = new GridSimConfig();
