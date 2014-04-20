@@ -158,7 +158,7 @@ public class MainWindow extends Application {
                 ConfigGenerator.generateMatrixMutiplyConfigs(minMatrixSize, maxMatrixSize, matrixSizeIncrement,
                         blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
 
-                ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
+                ExperimentRunner experimentRunner = new ExperimentRunner(16, 2, null, 0);
                 experimentRunner.runExperimnet();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());

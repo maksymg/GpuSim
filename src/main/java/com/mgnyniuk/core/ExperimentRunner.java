@@ -7,6 +7,9 @@ import com.mgnyniuk.core.com.mgnyniuk.core.parallel.WorkerThread;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by maksym on 3/24/14.
@@ -34,21 +37,38 @@ public class ExperimentRunner {
         //ConfigurationUtil.serializeConfigs(gridSimConfigList, startIndex);
         ThreadListener threadListener = new ThreadListener();
 
+
         for (int j = 0; j < overallProcessesQuantity/partProcessesQuantity; j++) {
+            ExecutorService es = Executors.newCachedThreadPool();
             for (int i = startIndex; i < startIndex + partProcessesQuantity; i++) {
 
                 NotifyingThread notifyingThread = new WorkerThread("GpuSimV2.jar",
                         String.format(CONFIG, (i + j * partProcessesQuantity)),
                         String.format(OUTPUT, (i + j * partProcessesQuantity)));
                 notifyingThread.addListener(threadListener);
-                notifyingThread.start();
+                //notifyingThread.start();
+                es.execute(notifyingThread);
             }
 
+            es.shutdown();
+
+            while(!es.isTerminated()) {
+                continue;
+            }
+
+            /*try {
+                boolean finshed = es.awaitTermination(1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }*/
+
+            /*
             while (threadListener.quantityOfEndedThreads != partProcessesQuantity) {
                 System.out.print(threadListener.quantityOfEndedThreads);
                 continue;
             }
-            threadListener.quantityOfEndedThreads = 0;
+            threadListener.quantityOfEndedThreads = 0;*/
+
         }
 
         //ConfigurationUtil.loadOutputs(startIndex,partProcessesQuantity);
