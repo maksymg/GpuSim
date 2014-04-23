@@ -127,10 +127,12 @@ public class MainWindow extends Application {
         Button newExperimentBtn = new Button();
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
-                //ConfigGenerator.generateMatrixMutiplyConfigs();
-                //ExperimentRunner experimentRunner = new ExperimentRunner(256, 1, null, 0);
-                //experimentRunner.runExperimnet();
-                inputsGridPane.setVisible(true);
+                Stage choosingExperimentStage = new Stage();
+
+                choosingExperimentStage.setScene(ChoosingExperimentWindow.getChoosingExperimentScene());
+                choosingExperimentStage.show();
+
+                //inputsGridPane.setVisible(true);
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
