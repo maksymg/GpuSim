@@ -130,6 +130,7 @@ public class MainWindow extends Application {
                 Stage choosingExperimentStage = new Stage();
 
                 choosingExperimentStage.setScene(ChoosingExperimentWindow.getChoosingExperimentScene());
+                choosingExperimentStage.setResizable(false);
                 choosingExperimentStage.show();
 
                 //inputsGridPane.setVisible(true);
