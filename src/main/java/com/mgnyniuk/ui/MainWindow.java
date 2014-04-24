@@ -107,12 +107,18 @@ public class MainWindow extends Application {
     Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
     TextField saveOperationCostTextField = new TextField(DEFAULT_SAVE_OPERATION_COST.toString());
 
+    private static GridPane inputsGridPane = new GridPane();
+
+    public static void setInputsGridPaneVisiblity(boolean isVisible) {
+        inputsGridPane.setVisible(isVisible);
+    }
+
     private void init(Stage primaryStage) {
         Group root = new Group();
         primaryStage.setScene(new Scene(root, 800, 800));
 
         // GridPane for inputs
-        GridPane inputsGridPane = new GridPane();
+
         inputsGridPane.setVisible(false);
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);

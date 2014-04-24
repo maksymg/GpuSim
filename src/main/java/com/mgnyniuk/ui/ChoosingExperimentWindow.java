@@ -1,14 +1,13 @@
 package com.mgnyniuk.ui;
 
 import com.mgnyniuk.com.mgnyniuk.experiment.Experiment;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -33,11 +32,13 @@ public class ChoosingExperimentWindow {
 
         // Matrix Multiply Experiment
         RadioButton matrixMultiplyRb = new RadioButton(Experiment.MATRIXMULTIPLY.getValue());
+        matrixMultiplyRb.setUserData(Experiment.MATRIXMULTIPLY);
         matrixMultiplyRb.setToggleGroup(experimentsTg);
         matrixMultiplyRb.setSelected(true);
 
         // N Body Experiment
         RadioButton nBodyRb = new RadioButton(Experiment.NBODY.getValue());
+        nBodyRb.setUserData(Experiment.NBODY);
         nBodyRb.setToggleGroup(experimentsTg);
 
         expRadioButtonVbox.getChildren().add(matrixMultiplyRb);
@@ -46,9 +47,26 @@ public class ChoosingExperimentWindow {
         HBox controlButtonsHbox = new HBox();
         controlButtonsHbox.setSpacing(20);
 
+        // toggle event processing
+
+        experimentsTg.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            @Override
+            public void changed(ObservableValue<? extends Toggle> observableValue, Toggle toggle, Toggle toggle2) {
+                    if (experimentsTg.getSelectedToggle() != null) {
+                            if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
+                                System.out.println(Experiment.MATRIXMULTIPLY.getValue());
+                            } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
+                                System.out.println(Experiment.NBODY.getValue());
+                            }
+                    }
+            }
+        });
+
         Button okButton = new Button("Ок");
         okButton.setOnAction(actionEvent -> {
-
+            Stage parentStage = (Stage)okButton.getScene().getWindow();
+            MainWindow.setInputsGridPaneVisiblity(true);
+            parentStage.close();
         });
         Button cancelButton = new Button("Скасувати");
         cancelButton.setOnAction(actionEvent -> {
