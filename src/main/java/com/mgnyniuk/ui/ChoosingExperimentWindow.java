@@ -47,7 +47,14 @@ public class ChoosingExperimentWindow {
         controlButtonsHbox.setSpacing(20);
 
         Button okButton = new Button("Ок");
+        okButton.setOnAction(actionEvent -> {
+
+        });
         Button cancelButton = new Button("Скасувати");
+        cancelButton.setOnAction(actionEvent -> {
+            Stage parentStage = (Stage)cancelButton.getScene().getWindow();
+            parentStage.close();
+        });
 
         controlButtonsHbox.getChildren().add(okButton);
         controlButtonsHbox.getChildren().add(cancelButton);
