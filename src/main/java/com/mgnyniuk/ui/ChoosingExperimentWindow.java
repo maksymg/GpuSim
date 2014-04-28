@@ -1,6 +1,6 @@
 package com.mgnyniuk.ui;
 
-import com.mgnyniuk.com.mgnyniuk.experiment.Experiment;
+import com.mgnyniuk.experiment.Experiment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;

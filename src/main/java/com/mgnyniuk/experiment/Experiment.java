@@ -1,4 +1,4 @@
-package com.mgnyniuk.com.mgnyniuk.experiment;
+package com.mgnyniuk.experiment;
 
 /**
  * Created by maksym on 4/23/14.
