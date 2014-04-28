@@ -4,6 +4,7 @@ import com.gpusim2.config.GridSimOutput;
 import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
+import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import com.sun.javafx.css.converters.StringConverter;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -106,6 +107,57 @@ public class MainWindow extends Application {
 
     Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
     TextField saveOperationCostTextField = new TextField(DEFAULT_SAVE_OPERATION_COST.toString());
+
+    private void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
+        // Inputs and labels for settings
+        Label mainParametersLbl = new Label("Основні параметри експеременту:");
+
+        Label experimentNameLbl = new Label("Ім'я:");
+        TextField experimentNameTextField = new TextField("<No Experiment Name>");
+
+        Label experimentDescriptionLbl = new Label("Опис:");
+        TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
+
+        Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
+
+        Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
+        TextField minMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMinMatrixSize().toString());
+
+        Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
+        TextField maxMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMaxMatrixSize().toString());
+
+        Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
+        TextField matrixSizeIncrementTextField = new TextField(matrixMultiplyExperiment.getMatrixSizeIncrement().toString());
+
+        Label blockSizeLbl = new Label("Розмір блоку:");
+        TextField blockSizeTextField = new TextField(matrixMultiplyExperiment.getBlockSize().toString());
+
+        CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+
+        Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
+        TextField numberOfCpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfCpu().toString());
+
+        Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
+        TextField rankOfCpuTextField = new TextField(matrixMultiplyExperiment.getRankOfCpu().toString());
+
+        Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
+        TextField numberOfGpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfGpu().toString());
+
+        Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
+        TextField rankOfGpuTextField = new TextField(matrixMultiplyExperiment.getRankOfGpu().toString());
+
+        Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
+        TextField resourceCapacityTextField = new TextField(matrixMultiplyExperiment.getResourceCapacity().toString());
+
+        Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
+        TextField linkCapacityTextField = new TextField(matrixMultiplyExperiment.getLinkCapacity().toString());
+
+        Label loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
+        TextField loadOperationCostTextField = new TextField(matrixMultiplyExperiment.getLoadOperationCost().toString());
+
+        Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
+        TextField saveOperationCostTextField = new TextField(matrixMultiplyExperiment.getSaveOperationCost().toString());
+    }
 
     private static GridPane inputsGridPane = new GridPane();
 
