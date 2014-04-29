@@ -66,9 +66,14 @@ public class ChoosingExperimentWindow {
         Button okButton = new Button("Ок");
         okButton.setOnAction(actionEvent -> {
             Stage parentStage = (Stage)okButton.getScene().getWindow();
-            MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment();
-            MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
-            MainWindow.setInputsGridPaneVisiblity(true);
+            if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
+                MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment();
+                MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
+                MainWindow.setInputsGridPaneVisiblity(true);
+            } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
+                MainWindow.setInputsGridPaneVisiblity(false);
+            }
+
             parentStage.close();
         });
         Button cancelButton = new Button("Скасувати");

@@ -44,21 +44,6 @@ public class MainWindow extends Application {
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
 
-    // default values for matrix multiply task
-    private static final Integer DEFAULT_MIN_MATRIX_SIZE = 16;
-    private static final Integer DEFAULT_MAX_MATRIX_SIZE = 4096;
-    private static final Integer DEFAULT_MATRIX_SIZE_INCREMENT = 16;
-    private static final Integer DEFAULT_BLOCK_SIZE = 16;
-
-    private static final Integer DEFAULT_NUMBER_OF_CPU = 8;
-    private static final Integer DEFAULT_RANK_OF_CPU = 1000;
-    private static final Integer DEFAULT_NUMBER_OF_GPU = 384;
-    private static final Integer DEFAULT_RANK_OF_GPU = 10000;
-    private static final Double DEFAULT_RESOURCE_CAPACITY = 10000000000.0;
-    private static final Double DEFAULT_LINK_CAPACITY = 10000000000.0;
-    private static final Double DEFAULT_LOAD_OPERATION_COST = 0.00018;
-    private static final Double DEFAULT_SAVE_OPERATION_COST = 0.000936;
-
     // Inputs and labels for settings
     private static Label mainParametersLbl;
 
