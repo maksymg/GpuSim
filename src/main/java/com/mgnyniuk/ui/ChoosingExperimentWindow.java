@@ -1,6 +1,7 @@
 package com.mgnyniuk.ui;
 
 import com.mgnyniuk.experiment.Experiment;
+import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
@@ -65,6 +66,8 @@ public class ChoosingExperimentWindow {
         Button okButton = new Button("Ок");
         okButton.setOnAction(actionEvent -> {
             Stage parentStage = (Stage)okButton.getScene().getWindow();
+            MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment();
+            MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
             MainWindow.setInputsGridPaneVisiblity(true);
             parentStage.close();
         });

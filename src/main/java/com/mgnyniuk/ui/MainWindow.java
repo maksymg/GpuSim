@@ -60,109 +60,170 @@ public class MainWindow extends Application {
     private static final Double DEFAULT_SAVE_OPERATION_COST = 0.000936;
 
     // Inputs and labels for settings
-    Label mainParametersLbl = new Label("Основні параметри експеременту:");
+    private static Label mainParametersLbl;
 
-    Label experimentNameLbl = new Label("Ім'я:");
-    TextField experimentNameTextField = new TextField("<No Experiment Name>");
+    private static Label experimentNameLbl;
+    private static TextField experimentNameTextField;
 
-    Label experimentDescriptionLbl = new Label("Опис:");
-    TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
+    private static Label experimentDescriptionLbl;
+    private static TextField experimentDescriptionTextField;
 
-    Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
+    private static Label experimentConditionsLbl;
 
-    Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
-    TextField minMatrixSizeTextField = new TextField(DEFAULT_MIN_MATRIX_SIZE.toString());
+    private static Label minMatrixSizeLbl;
+    private static TextField minMatrixSizeTextField;
 
-    Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
-    TextField maxMatrixSizeTextField = new TextField(DEFAULT_MAX_MATRIX_SIZE.toString());
+    private static Label maxMatrixSizeLbl;
+    private static TextField maxMatrixSizeTextField;
 
-    Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
-    TextField matrixSizeIncrementTextField = new TextField(DEFAULT_MATRIX_SIZE_INCREMENT.toString());
+    private static Label matrixSizeIncrementLbl;
+    private static TextField matrixSizeIncrementTextField;
 
-    Label blockSizeLbl = new Label("Розмір блоку:");
-    TextField blockSizeTextField = new TextField(DEFAULT_BLOCK_SIZE.toString());
+    private static Label blockSizeLbl;
+    private static TextField blockSizeTextField;
 
-    CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+    private static CheckBox modelingParametersChkBox;
 
-    Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
-    TextField numberOfCpuTextField = new TextField(DEFAULT_NUMBER_OF_CPU.toString());
+    private static Label numberOfCpuLbl;
+    private static TextField numberOfCpuTextField;
 
-    Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
-    TextField rankOfCpuTextField = new TextField(DEFAULT_RANK_OF_CPU.toString());
+    private static Label rankOfCpuLbl;
+    private static TextField rankOfCpuTextField;
 
-    Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
-    TextField numberOfGpuTextField = new TextField(DEFAULT_NUMBER_OF_GPU.toString());
+    private static Label numberOfGpuLbl;
+    private static TextField numberOfGpuTextField;
 
-    Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
-    TextField rankOfGpuTextField = new TextField(DEFAULT_RANK_OF_GPU.toString());
+    private static Label rankOfGpuLbl;
+    private static TextField rankOfGpuTextField;
 
-    Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
-    TextField resourceCapacityTextField = new TextField(DEFAULT_RESOURCE_CAPACITY.toString());
+    private static Label resourceCapacityLbl;
+    private static TextField resourceCapacityTextField;
 
-    Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
-    TextField linkCapacityTextField = new TextField(DEFAULT_LINK_CAPACITY.toString());
+    private static Label linkCapacityLbl;
+    private static TextField linkCapacityTextField;
 
-    Label loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
-    TextField loadOperationCostTextField = new TextField(DEFAULT_LOAD_OPERATION_COST.toString());
+    private static Label loadOperationCostLbl;
+    private static TextField loadOperationCostTextField;
 
-    Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
-    TextField saveOperationCostTextField = new TextField(DEFAULT_SAVE_OPERATION_COST.toString());
+    private static Label saveOperationCostLbl;
+    private static TextField saveOperationCostTextField;
 
-    private void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
+    public static void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
         // Inputs and labels for settings
-        Label mainParametersLbl = new Label("Основні параметри експеременту:");
+        mainParametersLbl = new Label("Основні параметри експеременту:");
 
-        Label experimentNameLbl = new Label("Ім'я:");
-        TextField experimentNameTextField = new TextField("<No Experiment Name>");
+        experimentNameLbl = new Label("Ім'я:");
+        experimentNameTextField = new TextField("<No Experiment Name>");
 
-        Label experimentDescriptionLbl = new Label("Опис:");
-        TextField experimentDescriptionTextField = new TextField("<No Experiment Description>");
+        experimentDescriptionLbl = new Label("Опис:");
+        experimentDescriptionTextField = new TextField("<No Experiment Description>");
 
-        Label experimentConditionsLbl = new Label("Граничні умови експерименту:");
+        experimentConditionsLbl = new Label("Граничні умови експерименту:");
 
-        Label minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
-        TextField minMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMinMatrixSize().toString());
+        minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
+        minMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMinMatrixSize().toString());
 
-        Label maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
-        TextField maxMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMaxMatrixSize().toString());
+        maxMatrixSizeLbl = new Label("Максимальний розмір матриць:");
+        maxMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMaxMatrixSize().toString());
 
-        Label matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
-        TextField matrixSizeIncrementTextField = new TextField(matrixMultiplyExperiment.getMatrixSizeIncrement().toString());
+        matrixSizeIncrementLbl = new Label("Інкремент розміру матриць:");
+        matrixSizeIncrementTextField = new TextField(matrixMultiplyExperiment.getMatrixSizeIncrement().toString());
 
-        Label blockSizeLbl = new Label("Розмір блоку:");
-        TextField blockSizeTextField = new TextField(matrixMultiplyExperiment.getBlockSize().toString());
+        blockSizeLbl = new Label("Розмір блоку:");
+        blockSizeTextField = new TextField(matrixMultiplyExperiment.getBlockSize().toString());
 
-        CheckBox modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+        modelingParametersChkBox = new CheckBox("Параметри моделювання:");
+        // setting modelingParametersChkBox checkBox
+        modelingParametersChkBox.setIndeterminate(false);
+        modelingParametersChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            public void changed(ObservableValue<? extends Boolean> ov,
+                                Boolean old_val, Boolean new_val) {
+                setVisibleModelingParameterBlock(new_val ? true : false);
+            }
+        });
 
-        Label numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
-        TextField numberOfCpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfCpu().toString());
+        numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
+        numberOfCpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfCpu().toString());
 
-        Label rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
-        TextField rankOfCpuTextField = new TextField(matrixMultiplyExperiment.getRankOfCpu().toString());
+        rankOfCpuLbl = new Label("Рейтинг обчислювальних елементів CPU:");
+        rankOfCpuTextField = new TextField(matrixMultiplyExperiment.getRankOfCpu().toString());
 
-        Label numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
-        TextField numberOfGpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfGpu().toString());
+        numberOfGpuLbl = new Label("Кількість обчислювальних елементів GPU:");
+        numberOfGpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfGpu().toString());
 
-        Label rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
-        TextField rankOfGpuTextField = new TextField(matrixMultiplyExperiment.getRankOfGpu().toString());
+        rankOfGpuLbl = new Label("Рейтинг обчислювальних елементів в GPU:");
+        rankOfGpuTextField = new TextField(matrixMultiplyExperiment.getRankOfGpu().toString());
 
-        Label resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
-        TextField resourceCapacityTextField = new TextField(matrixMultiplyExperiment.getResourceCapacity().toString());
+        resourceCapacityLbl = new Label("Пропускна здатність ресурсу (Мб/с):");
+        resourceCapacityTextField = new TextField(matrixMultiplyExperiment.getResourceCapacity().toString());
 
-        Label linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
-        TextField linkCapacityTextField = new TextField(matrixMultiplyExperiment.getLinkCapacity().toString());
+        linkCapacityLbl = new Label("Пропускна здатність каналу зв'язку (Мб/с):");
+        linkCapacityTextField = new TextField(matrixMultiplyExperiment.getLinkCapacity().toString());
 
-        Label loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
-        TextField loadOperationCostTextField = new TextField(matrixMultiplyExperiment.getLoadOperationCost().toString());
+        loadOperationCostLbl = new Label("Вартість операції завантаження данних:");
+        loadOperationCostTextField = new TextField(matrixMultiplyExperiment.getLoadOperationCost().toString());
 
-        Label saveOperationCostLbl = new Label("Вартість операції збереження данних:");
-        TextField saveOperationCostTextField = new TextField(matrixMultiplyExperiment.getSaveOperationCost().toString());
+        saveOperationCostLbl = new Label("Вартість операції збереження данних:");
+        saveOperationCostTextField = new TextField(matrixMultiplyExperiment.getSaveOperationCost().toString());
+
+        inputsGridPane.add(mainParametersLbl, 1, 1);
+        inputsGridPane.setColumnSpan(mainParametersLbl, 2);
+
+        inputsGridPane.add(experimentNameLbl, 1, 2);
+        inputsGridPane.add(experimentNameTextField, 2, 2);
+
+        inputsGridPane.add(experimentDescriptionLbl, 1, 3);
+        inputsGridPane.add(experimentDescriptionTextField, 2, 3);
+
+        inputsGridPane.add(experimentConditionsLbl, 1, 4);
+        inputsGridPane.setColumnSpan(experimentConditionsLbl, 2);
+
+        inputsGridPane.add(minMatrixSizeLbl, 1, 5);
+        inputsGridPane.add(minMatrixSizeTextField, 2, 5);
+
+        inputsGridPane.add(maxMatrixSizeLbl, 1, 6);
+        inputsGridPane.add(maxMatrixSizeTextField, 2, 6);
+
+        inputsGridPane.add(matrixSizeIncrementLbl, 1, 7);
+        inputsGridPane.add(matrixSizeIncrementTextField, 2, 7);
+
+        inputsGridPane.add(blockSizeLbl, 1, 8);
+        inputsGridPane.add(blockSizeTextField, 2, 8);
+
+        inputsGridPane.add(modelingParametersChkBox, 1, 9);
+        inputsGridPane.setColumnSpan(modelingParametersChkBox, 2);
+
+        inputsGridPane.add(numberOfCpuLbl, 1, 10);
+        inputsGridPane.add(numberOfCpuTextField, 2, 10);
+
+        inputsGridPane.add(rankOfCpuLbl, 1, 11);
+        inputsGridPane.add(rankOfCpuTextField, 2, 11);
+
+        inputsGridPane.add(numberOfGpuLbl, 1, 12);
+        inputsGridPane.add(numberOfGpuTextField, 2, 12);
+
+        inputsGridPane.add(rankOfGpuLbl, 1, 13);
+        inputsGridPane.add(rankOfGpuTextField, 2, 13);
+
+        inputsGridPane.add(resourceCapacityLbl, 1, 14);
+        inputsGridPane.add(resourceCapacityTextField, 2, 14);
+
+        inputsGridPane.add(linkCapacityLbl, 1, 15);
+        inputsGridPane.add(linkCapacityTextField, 2, 15);
+
+        inputsGridPane.add(loadOperationCostLbl, 1, 16);
+        inputsGridPane.add(loadOperationCostTextField, 2, 16);
+
+        inputsGridPane.add(saveOperationCostLbl, 1, 17);
+        inputsGridPane.add(saveOperationCostTextField, 2, 17);
     }
 
     private static GridPane inputsGridPane = new GridPane();
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
+        // set modelingParameters block invisible
+        setVisibleModelingParameterBlock(false);
     }
 
     private void init(Stage primaryStage) {
@@ -175,10 +236,7 @@ public class MainWindow extends Application {
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);
 
-        // setting modelingParametersChkBox checkBox
-        modelingParametersChkBox.setIndeterminate(false);
-        // set modelingParameters block invisible
-        setVisibleModelingParameterBlock(false);
+
 
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
@@ -242,12 +300,7 @@ public class MainWindow extends Application {
             resultsStage.show();
         });
 
-        modelingParametersChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> ov,
-                                Boolean old_val, Boolean new_val) {
-                setVisibleModelingParameterBlock(new_val ? true : false);
-            }
-        });
+
 
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
@@ -257,56 +310,6 @@ public class MainWindow extends Application {
         GridPane masterGridPane = new GridPane();
         masterGridPane.add(buttonsHBox, 1, 1);
 
-        inputsGridPane.add(mainParametersLbl, 1, 1);
-        inputsGridPane.setColumnSpan(mainParametersLbl, 2);
-
-        inputsGridPane.add(experimentNameLbl, 1, 2);
-        inputsGridPane.add(experimentNameTextField, 2, 2);
-
-        inputsGridPane.add(experimentDescriptionLbl, 1, 3);
-        inputsGridPane.add(experimentDescriptionTextField, 2, 3);
-
-        inputsGridPane.add(experimentConditionsLbl, 1, 4);
-        inputsGridPane.setColumnSpan(experimentConditionsLbl, 2);
-
-        inputsGridPane.add(minMatrixSizeLbl, 1, 5);
-        inputsGridPane.add(minMatrixSizeTextField, 2, 5);
-
-        inputsGridPane.add(maxMatrixSizeLbl, 1, 6);
-        inputsGridPane.add(maxMatrixSizeTextField, 2, 6);
-
-        inputsGridPane.add(matrixSizeIncrementLbl, 1, 7);
-        inputsGridPane.add(matrixSizeIncrementTextField, 2, 7);
-
-        inputsGridPane.add(blockSizeLbl, 1, 8);
-        inputsGridPane.add(blockSizeTextField, 2, 8);
-
-        inputsGridPane.add(modelingParametersChkBox, 1, 9);
-        inputsGridPane.setColumnSpan(modelingParametersChkBox, 2);
-
-        inputsGridPane.add(numberOfCpuLbl, 1, 10);
-        inputsGridPane.add(numberOfCpuTextField, 2, 10);
-
-        inputsGridPane.add(rankOfCpuLbl, 1, 11);
-        inputsGridPane.add(rankOfCpuTextField, 2, 11);
-
-        inputsGridPane.add(numberOfGpuLbl, 1, 12);
-        inputsGridPane.add(numberOfGpuTextField, 2, 12);
-
-        inputsGridPane.add(rankOfGpuLbl, 1, 13);
-        inputsGridPane.add(rankOfGpuTextField, 2, 13);
-
-        inputsGridPane.add(resourceCapacityLbl, 1, 14);
-        inputsGridPane.add(resourceCapacityTextField, 2, 14);
-
-        inputsGridPane.add(linkCapacityLbl, 1, 15);
-        inputsGridPane.add(linkCapacityTextField, 2, 15);
-
-        inputsGridPane.add(loadOperationCostLbl, 1, 16);
-        inputsGridPane.add(loadOperationCostTextField, 2, 16);
-
-        inputsGridPane.add(saveOperationCostLbl, 1, 17);
-        inputsGridPane.add(saveOperationCostTextField, 2, 17);
 
         masterGridPane.add(inputsGridPane, 1, 2);
         root.getChildren().add(masterGridPane);
@@ -343,7 +346,7 @@ public class MainWindow extends Application {
         return ac;
     }
 
-    private void setVisibleModelingParameterBlock(boolean isVisible) {
+    private static void setVisibleModelingParameterBlock(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);
         numberOfCpuTextField.setVisible(isVisible);
 
