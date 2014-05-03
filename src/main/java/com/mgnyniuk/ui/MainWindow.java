@@ -5,12 +5,9 @@ import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
-import com.sun.javafx.css.converters.StringConverter;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
@@ -24,15 +21,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.Group;
 
 
-import java.awt.*;
-import java.awt.geom.Arc2D;
 import java.io.FileNotFoundException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,16 +37,16 @@ public class MainWindow extends Application {
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
 
-    // Inputs and labels for settings
-    private static Label mainParametersLbl;
+    // Inputs and labels for settings MatrixMultiplyExperiment
+    private static Label mainParametersForMatrixMultiplyLbl;
 
-    private static Label experimentNameLbl;
-    private static TextField experimentNameTextField;
+    private static Label experimentNameForMatrixMultiplyLbl;
+    private static TextField experimentNameForMatrixMultiplyTextField;
 
-    private static Label experimentDescriptionLbl;
-    private static TextField experimentDescriptionTextField;
+    private static Label experimentDescriptionForMatrixMultiplyLbl;
+    private static TextField experimentDescriptionForMatrixMultiplyTextField;
 
-    private static Label experimentConditionsLbl;
+    private static Label experimentConditionsForMatrixMultiplyLbl;
 
     private static Label minMatrixSizeLbl;
     private static TextField minMatrixSizeTextField;
@@ -67,7 +60,7 @@ public class MainWindow extends Application {
     private static Label blockSizeLbl;
     private static TextField blockSizeTextField;
 
-    private static CheckBox modelingParametersChkBox;
+    private static CheckBox modelingParametersForMatrixMultiplyChkBox;
 
     private static Label numberOfCpuLbl;
     private static TextField numberOfCpuTextField;
@@ -93,17 +86,61 @@ public class MainWindow extends Application {
     private static Label saveOperationCostLbl;
     private static TextField saveOperationCostTextField;
 
+    // Inputs and labels for settings NBodyExperiment
+
+    private static Label mainParametersForNBodyLbl;
+
+    private static Label experimentNameForNBodyLbl;
+    private static TextField experimentNameForNBodyTextField;
+
+    private static Label experimentDescriptionForNBodyLbl;
+    private static TextField experimentDescriptionForNBodyTextField;
+
+    private static Label experimentConditionsForNBodyLbl;
+
+    private static Label minNLbl;
+    private static TextField minNTextField;
+
+    private static Label maxNLbl;
+    private static TextField maxNTextField;
+
+    private static Label minTPBLbl;
+    private static TextField minTPBTextField;
+
+    private static Label maxTPBLbl;
+    private static TextField maxTPBTextField;
+
+    private static CheckBox modelingParametersForNBodyChkBox;
+
+    private static Label gpuCoreRatingLbl;
+    private static TextField gpuCoreRatingTextField;
+
+    private static Label limitationsDividerLbl;
+    private static TextField limitationsDividerTextField;
+
+    private static Label smallTPBPenaltyWeightLbl;
+    private static TextField smallTPBPenaltyWeightTextField;
+
+    private static Label largeTPBPenaltyWeightLbl;
+    private static TextField largeTPBPenaltyWeightTextField;
+
+    private static Label multiplicativeLengthScaleFactorLbl;
+    private static TextField multiplicativeLengthScaleFactorTextField;
+
+    private static Label additiveLengthScaleFactorLbl;
+    private static TextField additiveLengthScaleFactorTextField;
+
     public static void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
         // Inputs and labels for settings
-        mainParametersLbl = new Label("Основні параметри експеременту:");
+        mainParametersForMatrixMultiplyLbl = new Label("Основні параметри експеременту:");
 
-        experimentNameLbl = new Label("Ім'я:");
-        experimentNameTextField = new TextField("<No Experiment Name>");
+        experimentNameForMatrixMultiplyLbl = new Label("Ім'я:");
+        experimentNameForMatrixMultiplyTextField = new TextField("<No Experiment Name>");
 
-        experimentDescriptionLbl = new Label("Опис:");
-        experimentDescriptionTextField = new TextField("<No Experiment Description>");
+        experimentDescriptionForMatrixMultiplyLbl = new Label("Опис:");
+        experimentDescriptionForMatrixMultiplyTextField = new TextField("<No Experiment Description>");
 
-        experimentConditionsLbl = new Label("Граничні умови експерименту:");
+        experimentConditionsForMatrixMultiplyLbl = new Label("Граничні умови експерименту:");
 
         minMatrixSizeLbl = new Label("Мінімальний розмір матриць:");
         minMatrixSizeTextField = new TextField(matrixMultiplyExperiment.getMinMatrixSize().toString());
@@ -117,10 +154,10 @@ public class MainWindow extends Application {
         blockSizeLbl = new Label("Розмір блоку:");
         blockSizeTextField = new TextField(matrixMultiplyExperiment.getBlockSize().toString());
 
-        modelingParametersChkBox = new CheckBox("Параметри моделювання:");
-        // setting modelingParametersChkBox checkBox
-        modelingParametersChkBox.setIndeterminate(false);
-        modelingParametersChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+        modelingParametersForMatrixMultiplyChkBox = new CheckBox("Параметри моделювання:");
+        // setting modelingParametersForMatrixMultiplyChkBox checkBox
+        modelingParametersForMatrixMultiplyChkBox.setIndeterminate(false);
+        modelingParametersForMatrixMultiplyChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             public void changed(ObservableValue<? extends Boolean> ov,
                                 Boolean old_val, Boolean new_val) {
                 setVisibleModelingParameterBlock(new_val ? true : false);
@@ -151,17 +188,17 @@ public class MainWindow extends Application {
         saveOperationCostLbl = new Label("Вартість операції збереження данних:");
         saveOperationCostTextField = new TextField(matrixMultiplyExperiment.getSaveOperationCost().toString());
 
-        inputsGridPane.add(mainParametersLbl, 1, 1);
-        inputsGridPane.setColumnSpan(mainParametersLbl, 2);
+        inputsGridPane.add(mainParametersForMatrixMultiplyLbl, 1, 1);
+        inputsGridPane.setColumnSpan(mainParametersForMatrixMultiplyLbl, 2);
 
-        inputsGridPane.add(experimentNameLbl, 1, 2);
-        inputsGridPane.add(experimentNameTextField, 2, 2);
+        inputsGridPane.add(experimentNameForMatrixMultiplyLbl, 1, 2);
+        inputsGridPane.add(experimentNameForMatrixMultiplyTextField, 2, 2);
 
-        inputsGridPane.add(experimentDescriptionLbl, 1, 3);
-        inputsGridPane.add(experimentDescriptionTextField, 2, 3);
+        inputsGridPane.add(experimentDescriptionForMatrixMultiplyLbl, 1, 3);
+        inputsGridPane.add(experimentDescriptionForMatrixMultiplyTextField, 2, 3);
 
-        inputsGridPane.add(experimentConditionsLbl, 1, 4);
-        inputsGridPane.setColumnSpan(experimentConditionsLbl, 2);
+        inputsGridPane.add(experimentConditionsForMatrixMultiplyLbl, 1, 4);
+        inputsGridPane.setColumnSpan(experimentConditionsForMatrixMultiplyLbl, 2);
 
         inputsGridPane.add(minMatrixSizeLbl, 1, 5);
         inputsGridPane.add(minMatrixSizeTextField, 2, 5);
@@ -175,8 +212,8 @@ public class MainWindow extends Application {
         inputsGridPane.add(blockSizeLbl, 1, 8);
         inputsGridPane.add(blockSizeTextField, 2, 8);
 
-        inputsGridPane.add(modelingParametersChkBox, 1, 9);
-        inputsGridPane.setColumnSpan(modelingParametersChkBox, 2);
+        inputsGridPane.add(modelingParametersForMatrixMultiplyChkBox, 1, 9);
+        inputsGridPane.setColumnSpan(modelingParametersForMatrixMultiplyChkBox, 2);
 
         inputsGridPane.add(numberOfCpuLbl, 1, 10);
         inputsGridPane.add(numberOfCpuTextField, 2, 10);
