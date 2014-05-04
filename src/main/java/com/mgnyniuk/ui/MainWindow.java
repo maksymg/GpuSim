@@ -5,9 +5,8 @@ import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
+import com.mgnyniuk.experiment.NBodyExperiment;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
@@ -130,7 +129,106 @@ public class MainWindow extends Application {
     private static Label additiveLengthScaleFactorLbl;
     private static TextField additiveLengthScaleFactorTextField;
 
+    public static void prepareFieldsForNBodyExperiment(NBodyExperiment nBodyExperiment) {
+
+        inputsGridPane.getChildren().clear();
+
+        // Inputs and labels for settings
+        mainParametersForNBodyLbl = new Label("Основні параметри експеременту:");
+
+        experimentNameForNBodyLbl = new Label("Ім'я");
+        experimentNameForNBodyTextField = new TextField("<No Experiment Name>");
+
+        experimentDescriptionForNBodyLbl = new Label("Опис:");
+        experimentDescriptionForNBodyTextField = new TextField("<No Experiment Description>");
+
+        experimentConditionsForNBodyLbl = new Label("Граничні умови експерименту:");
+
+        minNLbl = new Label("Мінімальне N:");
+        minNTextField = new TextField(nBodyExperiment.getMinN().toString());
+
+        maxNLbl = new Label("Максимальне N:");
+        maxNTextField = new TextField(nBodyExperiment.getMaxN().toString());
+
+        minTPBLbl = new Label("Мінімальна кількість потоків на блок:");
+        minTPBTextField = new TextField(nBodyExperiment.getMinTPB().toString());
+
+        maxTPBLbl = new Label("Максимальна кількість потоків на блок:");
+        maxTPBTextField = new TextField(nBodyExperiment.getMaxTPB().toString());
+
+        modelingParametersForNBodyChkBox = new CheckBox("Параметри моделювання:");
+        // setting modelingParametersForNBodyChkBox checkBox
+        modelingParametersForNBodyChkBox.setIndeterminate(false);
+        modelingParametersForNBodyChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setVisibleModelingParameterBlockForNBody(new_val ? true : false));
+
+        gpuCoreRatingLbl = new Label("Рейтинг кожного з ядер GPU:");
+        gpuCoreRatingTextField = new TextField(nBodyExperiment.getGpuCoreRating().toString());
+
+        limitationsDividerLbl = new Label("Параметр зменшення кількості завдань:");
+        limitationsDividerTextField = new TextField(nBodyExperiment.getLimitationDivider().toString());
+
+        smallTPBPenaltyWeightLbl = new Label("Ваговий коефіцієнт складової переключення контексту:");
+        smallTPBPenaltyWeightTextField = new TextField(nBodyExperiment.getSmallTPBPenaltyWeight().toString());
+
+        largeTPBPenaltyWeightLbl = new Label("Ваговий коефіцієнт складової синхронізації:");
+        largeTPBPenaltyWeightTextField = new TextField(nBodyExperiment.getLargeTPBPenaltyWeight().toString());
+
+        multiplicativeLengthScaleFactorLbl = new Label("Мультиплікативний коефіцієнт масштабування обсягу завдань:");
+        multiplicativeLengthScaleFactorTextField = new TextField(nBodyExperiment.getMultiplicativeLengthScaleFactor().toString());
+
+        additiveLengthScaleFactorLbl = new Label("Адитивний коефіцієнт масштабування обсягу завдань:");
+        additiveLengthScaleFactorTextField = new TextField(nBodyExperiment.getAdditiveLengthScaleFactor().toString());
+
+        inputsGridPane.add(mainParametersForNBodyLbl, 1, 1);
+        inputsGridPane.setColumnSpan(mainParametersForNBodyLbl, 2);
+
+        inputsGridPane.add(experimentNameForNBodyLbl, 1, 2);
+        inputsGridPane.add(experimentNameForNBodyTextField, 2, 2);
+
+        inputsGridPane.add(experimentDescriptionForNBodyLbl, 1, 3);
+        inputsGridPane.add(experimentDescriptionForNBodyTextField, 2, 3);
+
+        inputsGridPane.add(experimentConditionsForNBodyLbl, 1, 4);
+        inputsGridPane.setColumnSpan(experimentConditionsForNBodyLbl, 2);
+
+        inputsGridPane.add(minNLbl, 1, 5);
+        inputsGridPane.add(minNTextField, 2, 5);
+
+        inputsGridPane.add(maxNLbl, 1, 6);
+        inputsGridPane.add(maxNTextField, 2, 6);
+
+        inputsGridPane.add(minTPBLbl, 1, 7);
+        inputsGridPane.add(minTPBTextField, 2, 7);
+
+        inputsGridPane.add(maxTPBLbl, 1, 8);
+        inputsGridPane.add(maxTPBTextField, 2, 8);
+
+        inputsGridPane.add(modelingParametersForNBodyChkBox, 1, 9);
+        inputsGridPane.setColumnSpan(modelingParametersForNBodyChkBox, 2);
+
+        inputsGridPane.add(gpuCoreRatingLbl, 1, 10);
+        inputsGridPane.add(gpuCoreRatingTextField, 2, 10);
+
+        inputsGridPane.add(limitationsDividerLbl, 1, 11);
+        inputsGridPane.add(limitationsDividerTextField, 2, 11);
+
+        inputsGridPane.add(smallTPBPenaltyWeightLbl, 1, 12);
+        inputsGridPane.add(smallTPBPenaltyWeightTextField, 2, 12);
+
+        inputsGridPane.add(largeTPBPenaltyWeightLbl, 1, 13);
+        inputsGridPane.add(largeTPBPenaltyWeightTextField, 2, 13);
+
+        inputsGridPane.add(multiplicativeLengthScaleFactorLbl, 1, 14);
+        inputsGridPane.add(multiplicativeLengthScaleFactorTextField, 2, 14);
+
+        inputsGridPane.add(additiveLengthScaleFactorLbl, 1, 15);
+        inputsGridPane.add(additiveLengthScaleFactorTextField, 2, 15);
+    }
+
     public static void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
+
+        inputsGridPane.getChildren().clear();
+
         // Inputs and labels for settings
         mainParametersForMatrixMultiplyLbl = new Label("Основні параметри експеременту:");
 
@@ -157,12 +255,7 @@ public class MainWindow extends Application {
         modelingParametersForMatrixMultiplyChkBox = new CheckBox("Параметри моделювання:");
         // setting modelingParametersForMatrixMultiplyChkBox checkBox
         modelingParametersForMatrixMultiplyChkBox.setIndeterminate(false);
-        modelingParametersForMatrixMultiplyChkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            public void changed(ObservableValue<? extends Boolean> ov,
-                                Boolean old_val, Boolean new_val) {
-                setVisibleModelingParameterBlock(new_val ? true : false);
-            }
-        });
+        modelingParametersForMatrixMultiplyChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setVisibleModelingParameterBlockForMatrixMultiply(new_val ? true : false));
 
         numberOfCpuLbl = new Label("Кількість обчислювальних елементів CPU:");
         numberOfCpuTextField = new TextField(matrixMultiplyExperiment.getNumberOfCpu().toString());
@@ -244,8 +337,12 @@ public class MainWindow extends Application {
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
-        // set modelingParameters block invisible
-        setVisibleModelingParameterBlock(false);
+
+        // set modelingParameters block invisible for Matrix Multiply Experiment
+        //setVisibleModelingParameterBlockForMatrixMultiply(false);
+
+        // set modelingParameters block invisible for NBody Experiment
+        //setVisibleModelingParameterBlockForNBody(false);
     }
 
     private void init(Stage primaryStage) {
@@ -368,7 +465,7 @@ public class MainWindow extends Application {
         return ac;
     }
 
-    private static void setVisibleModelingParameterBlock(boolean isVisible) {
+    public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);
         numberOfCpuTextField.setVisible(isVisible);
 
@@ -392,6 +489,27 @@ public class MainWindow extends Application {
 
         saveOperationCostLbl.setVisible(isVisible);
         saveOperationCostTextField.setVisible(isVisible);
+    }
+
+    public static void setVisibleModelingParameterBlockForNBody(boolean isVisible) {
+
+        gpuCoreRatingLbl.setVisible(isVisible);
+        gpuCoreRatingTextField.setVisible(isVisible);
+
+        limitationsDividerLbl.setVisible(isVisible);
+        limitationsDividerTextField.setVisible(isVisible);
+
+        smallTPBPenaltyWeightLbl.setVisible(isVisible);
+        smallTPBPenaltyWeightTextField.setVisible(isVisible);
+
+        largeTPBPenaltyWeightLbl.setVisible(isVisible);
+        largeTPBPenaltyWeightTextField.setVisible(isVisible);
+
+        multiplicativeLengthScaleFactorLbl.setVisible(isVisible);
+        multiplicativeLengthScaleFactorTextField.setVisible(isVisible);
+
+        additiveLengthScaleFactorLbl.setVisible(isVisible);
+        additiveLengthScaleFactorTextField.setVisible(isVisible);
     }
 
     @Override

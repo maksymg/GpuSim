@@ -2,6 +2,7 @@ package com.mgnyniuk.ui;
 
 import com.mgnyniuk.experiment.Experiment;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
+import com.mgnyniuk.experiment.NBodyExperiment;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
@@ -70,8 +71,12 @@ public class ChoosingExperimentWindow {
                 MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment();
                 MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
                 MainWindow.setInputsGridPaneVisiblity(true);
+                MainWindow.setVisibleModelingParameterBlockForMatrixMultiply(false);
             } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
-                MainWindow.setInputsGridPaneVisiblity(false);
+                NBodyExperiment nBodyExperiment = new NBodyExperiment();
+                MainWindow.prepareFieldsForNBodyExperiment(nBodyExperiment);
+                MainWindow.setInputsGridPaneVisiblity(true);
+                MainWindow.setVisibleModelingParameterBlockForNBody(false);
             }
 
             parentStage.close();
