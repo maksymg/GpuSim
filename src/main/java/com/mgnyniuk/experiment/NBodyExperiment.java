@@ -1,5 +1,15 @@
 package com.mgnyniuk.experiment;
 
+import com.gpusim2.config.GridSimConfig;
+import com.gpusim2.config.GridSimGridletConfig;
+import com.gpusim2.config.GridSimMachineConfig;
+import com.gpusim2.config.GridSimResourceConfig;
+import com.mgnyniuk.util.Calc;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by maksym on 5/4/14.
  */
@@ -45,6 +55,72 @@ public class NBodyExperiment {
         this.largeTPBPenaltyWeight = largeTPBPenaltyWeight;
         this.multiplicativeLengthScaleFactor = multiplicativeLengthScaleFactor;
         this.additiveLengthScaleFactor = additiveLengthScaleFactor;
+    }
+
+    private List<Input> createInputs() {
+        List<Input> inputs = new ArrayList<>();
+        for (int currentN = minN; currentN <= maxN; currentN *= 2) {
+            for (int currentTPB = minTPB; currentTPB <= maxTPB; currentTPB *= 2) {
+                inputs.add(new Input(currentN, currentTPB));
+            }
+        }
+
+        return inputs;
+    }
+
+    private void createSimulationConfig(Input input) {
+
+        // Create machines config with only one machine with only one PE
+        GridSimMachineConfig gridSimMachineConfig = new GridSimMachineConfig();
+        gridSimMachineConfig.setPeCount(1);
+        gridSimMachineConfig.setPeRating(gpuCoreRating);
+        gridSimMachineConfig.setCount(1);
+
+        // Create resources config with resources count equals to TPB
+        GridSimResourceConfig gridSimResourceConfig = new GridSimResourceConfig();
+        gridSimResourceConfig.setArch("gpusim.NBody-ExperimentPlugin.Arch");
+        gridSimResourceConfig.setOs("gpusim.NBody-ExperimentPlugin.OS");
+        gridSimResourceConfig.setBaudRate(1e+10);
+        gridSimResourceConfig.setCostPerSec(1.0);
+        gridSimResourceConfig.setMachines(new LinkedList<GridSimMachineConfig>());
+        gridSimResourceConfig.setCount(input.getThreadsPerBlock());
+
+        gridSimResourceConfig.getMachines().add(gridSimMachineConfig);
+
+        // Create gridlet config
+        GridSimGridletConfig gridSimGridletConfig = createGridletConfig(input.getN(), input.getThreadsPerBlock(), limitationDivider,
+                smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor, additiveLengthScaleFactor);
+
+        GridSimConfig gridSimConfig = new GridSimConfig();
+        gridSimConfig.setLinkBaudRate(1e+10);
+        gridSimConfig.setVersion(1);
+        gridSimConfig.setGridlets(new LinkedList<>());
+        gridSimConfig.setResources(new LinkedList<>());
+
+        gridSimConfig.getGridlets().add(gridSimGridletConfig);
+        gridSimConfig.getResources().add(gridSimResourceConfig);
+
+    }
+
+    private GridSimGridletConfig createGridletConfig(int n, int threadsPerBlock, double limitationsDivider, double smallTPBPenaltyWeight,
+                                     double largeTPBPenaltyWeight, double multiplicativeLengthScaleFactor, double additiveLengthScaleFactor) {
+
+        double smallTPBPenalty = (smallTPBPenaltyWeight * n * Calc.log(n, 2) * Calc.log(n, 2) * Calc.log(threadsPerBlock, 2)) / (threadsPerBlock);
+        double largeTPBPenalty = threadsPerBlock * n * largeTPBPenaltyWeight;
+
+        double length = (n * limitationsDivider + smallTPBPenalty + largeTPBPenalty) * multiplicativeLengthScaleFactor +
+                additiveLengthScaleFactor;
+        Double count = n / limitationsDivider;
+        int inputSize = 1;
+        int outputSize = 1;
+
+        GridSimGridletConfig gridSimGridletConfig = new GridSimGridletConfig();
+        gridSimGridletConfig.setLength(length);
+        gridSimGridletConfig.setInputSize(inputSize);
+        gridSimGridletConfig.setOutputSize(outputSize);
+        gridSimGridletConfig.setCount(count.intValue());
+
+        return gridSimGridletConfig;
     }
 
     public Integer getMinN() {
@@ -125,5 +201,32 @@ public class NBodyExperiment {
 
     public void setAdditiveLengthScaleFactor(Double additiveLengthScaleFactor) {
         this.additiveLengthScaleFactor = additiveLengthScaleFactor;
+    }
+
+    private class Input {
+
+        private Integer n;
+        private Integer threadsPerBlock;
+
+        public Input(Integer currentN, Integer currentTPB) {
+            this.n = currentN;
+            this.threadsPerBlock = currentTPB;
+        }
+
+        public Integer getN() {
+            return n;
+        }
+
+        public void setN(Integer n) {
+            this.n = n;
+        }
+
+        public Integer getThreadsPerBlock() {
+            return threadsPerBlock;
+        }
+
+        public void setThreadsPerBlock(Integer threadPerBlock) {
+            this.threadsPerBlock = threadPerBlock;
+        }
     }
 }
