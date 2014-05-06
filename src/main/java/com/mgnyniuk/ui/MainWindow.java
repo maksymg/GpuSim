@@ -4,6 +4,7 @@ import com.gpusim2.config.GridSimOutput;
 import com.mgnyniuk.core.ConfigGenerator;
 import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
+import com.mgnyniuk.experiment.Experiment;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import com.mgnyniuk.experiment.NBodyExperiment;
 import javafx.application.Application;
@@ -35,6 +36,7 @@ public class MainWindow extends Application {
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
+    public static Experiment runningExperiment;
 
     // Inputs and labels for settings MatrixMultiplyExperiment
     private static Label mainParametersForMatrixMultiplyLbl;
@@ -356,7 +358,6 @@ public class MainWindow extends Application {
         inputsGridPane.setVgap(5);
 
 
-
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
         Button newExperimentBtn = new Button();
@@ -379,27 +380,55 @@ public class MainWindow extends Application {
         ImageView runSimulationImage = new ImageView(RUN_MODELING);
         Button runSumulationBtn = new Button();
         runSumulationBtn.setOnAction(actionEvent -> {
-            try {
-                int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
-                int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
-                int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
-                int blockSize = Integer.parseInt(blockSizeTextField.getText());
-                int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
-                int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
-                double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
-                double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
-                double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
-                double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
+            if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                try {
+                    int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
+                    int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
+                    int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
+                    int blockSize = Integer.parseInt(blockSizeTextField.getText());
+                    int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                    int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
+                    int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                    int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
+                    double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
+                    double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
+                    double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
+                    double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 
-                ConfigGenerator.generateMatrixMutiplyConfigs(minMatrixSize, maxMatrixSize, matrixSizeIncrement,
-                        blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+                    ConfigGenerator.generateMatrixMutiplyConfigs(minMatrixSize, maxMatrixSize, matrixSizeIncrement,
+                            blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
 
-                ExperimentRunner experimentRunner = new ExperimentRunner(16, 2, null, 0);
-                experimentRunner.runExperimnet();
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                    ExperimentRunner experimentRunner = new ExperimentRunner(16, 2, null, 0);
+                    experimentRunner.runExperimnet();
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+
+            if (runningExperiment == Experiment.NBODY) {
+
+                int minN = Integer.parseInt(minNTextField.getText());
+                int maxN = Integer.parseInt(maxNTextField.getText());
+                int minTPB = Integer.parseInt(minTPBTextField.getText());
+                int maxTPB = Integer.parseInt(maxTPBTextField.getText());
+
+                int gpuCoreRating = Integer.parseInt(gpuCoreRatingTextField.getText());
+                int limitationDivider = Integer.parseInt(limitationsDividerTextField.getText());
+                double smallTPBPenaltyWeight = Double.parseDouble(smallTPBPenaltyWeightTextField.getText());
+                double largeTPBPenaltyWeight = Double.parseDouble(largeTPBPenaltyWeightTextField.getText());
+                double multiplicativeLengthScaleFactor = Double.parseDouble(multiplicativeLengthScaleFactorTextField.getText());
+                double additiveLengthScaleFactor = Double.parseDouble(additiveLengthScaleFactorTextField.getText());
+
+                NBodyExperiment nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
+                        limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
+                        additiveLengthScaleFactor);
+
+                try {
+                    nBodyExperiment.serializeSimulationConfigs(nBodyExperiment.createInputs());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
         runSumulationBtn.setGraphic(runSimulationImage);
@@ -418,7 +447,6 @@ public class MainWindow extends Application {
 
             resultsStage.show();
         });
-
 
 
         // HBox with spacing 5

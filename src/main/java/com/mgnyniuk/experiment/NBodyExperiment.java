@@ -6,6 +6,9 @@ import com.gpusim2.config.GridSimMachineConfig;
 import com.gpusim2.config.GridSimResourceConfig;
 import com.mgnyniuk.util.Calc;
 
+import java.beans.XMLEncoder;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +60,7 @@ public class NBodyExperiment {
         this.additiveLengthScaleFactor = additiveLengthScaleFactor;
     }
 
-    private List<Input> createInputs() {
+    public List<Input> createInputs() {
         List<Input> inputs = new ArrayList<>();
         for (int currentN = minN; currentN <= maxN; currentN *= 2) {
             for (int currentTPB = minTPB; currentTPB <= maxTPB; currentTPB *= 2) {
@@ -68,7 +71,7 @@ public class NBodyExperiment {
         return inputs;
     }
 
-    private void createSimulationConfig(Input input) {
+    private GridSimConfig createSimulationConfig(Input input) {
 
         // Create machines config with only one machine with only one PE
         GridSimMachineConfig gridSimMachineConfig = new GridSimMachineConfig();
@@ -99,6 +102,22 @@ public class NBodyExperiment {
 
         gridSimConfig.getGridlets().add(gridSimGridletConfig);
         gridSimConfig.getResources().add(gridSimResourceConfig);
+
+        return gridSimConfig;
+
+    }
+
+    public void serializeSimulationConfigs(List<Input> inputs) throws FileNotFoundException {
+
+        for(int i=0; i < inputs.size(); i++) {
+            GridSimConfig gridSimConfig = createSimulationConfig(inputs.get(i));
+
+            FileOutputStream out = new FileOutputStream("config" + i + ".xml");
+            XMLEncoder xmlEncoder = new XMLEncoder(out);
+            xmlEncoder.writeObject(gridSimConfig);
+            xmlEncoder.flush();
+            xmlEncoder.close();
+        }
 
     }
 

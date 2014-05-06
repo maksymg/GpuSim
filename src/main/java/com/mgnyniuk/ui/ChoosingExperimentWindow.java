@@ -68,11 +68,20 @@ public class ChoosingExperimentWindow {
         okButton.setOnAction(actionEvent -> {
             Stage parentStage = (Stage)okButton.getScene().getWindow();
             if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
+                // set running Experiment
+                MainWindow.runningExperiment = Experiment.MATRIXMULTIPLY;
+
+                // // create base matrix multiply Experiment and prepare visual form
                 MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment();
                 MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
                 MainWindow.setInputsGridPaneVisiblity(true);
                 MainWindow.setVisibleModelingParameterBlockForMatrixMultiply(false);
             } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
+
+                // set running Experiment
+                MainWindow.runningExperiment = Experiment.NBODY;
+
+                // create base nbody Experiment and prepare visual form
                 NBodyExperiment nBodyExperiment = new NBodyExperiment();
                 MainWindow.prepareFieldsForNBodyExperiment(nBodyExperiment);
                 MainWindow.setInputsGridPaneVisiblity(true);
