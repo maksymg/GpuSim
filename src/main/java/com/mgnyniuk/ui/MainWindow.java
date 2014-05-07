@@ -26,6 +26,7 @@ import javafx.scene.Group;
 
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -425,7 +426,11 @@ public class MainWindow extends Application {
 
                 try {
                     nBodyExperiment.serializeSimulationConfigs(nBodyExperiment.createInputs());
+                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(10, 1, null, 0);
+                    nBodyExperimentRunner.runExperimnet();
                 } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
