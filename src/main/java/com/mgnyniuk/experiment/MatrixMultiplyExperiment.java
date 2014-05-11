@@ -1,5 +1,17 @@
 package com.mgnyniuk.experiment;
 
+import com.gpusim2.config.GridSimConfig;
+import com.gpusim2.config.GridSimGridletConfig;
+import com.gpusim2.config.GridSimMachineConfig;
+import com.gpusim2.config.GridSimResourceConfig;
+
+import java.beans.XMLEncoder;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by maksym on 4/28/14.
  */
@@ -19,20 +31,28 @@ public class MatrixMultiplyExperiment {
     private Double loadOperationCost;
     private Double saveOperationCost;
 
-    public MatrixMultiplyExperiment() {
-        minMatrixSize = 16;
-        maxMatrixSize = 4096;
-        matrixSizeIncrement = 16;
-        blockSize = 16;
+    private List<Integer> blockSizeList;
+    private List<Integer> matrixSizeList;
 
-        numberOfCpu = 8;
-        rankOfCpu = 1000;
-        numberOfGpu = 384;
-        rankOfGpu = 10000;
-        resourceCapacity = 10000000000.0;
-        linkCapacity = 10000000000.0;
-        loadOperationCost = 0.00018;
-        saveOperationCost = 0.000936;
+    public MatrixMultiplyExperiment() {
+        this.minMatrixSize = 16;
+        this.maxMatrixSize = 4096;
+        this.matrixSizeIncrement = 16;
+        this.blockSize = 16;
+
+        this.numberOfCpu = 8;
+        this.rankOfCpu = 1000;
+        this.numberOfGpu = 384;
+        this.rankOfGpu = 10000;
+        this.resourceCapacity = 10000000000.0;
+        this.linkCapacity = 10000000000.0;
+        this.loadOperationCost = 0.00018;
+        this.saveOperationCost = 0.000936;
+
+        this.blockSizeList = new ArrayList<>();
+        this.matrixSizeList = new ArrayList<>();
+
+        initBlockAndMatrixSizeLists(maxMatrixSize, matrixSizeIncrement, blockSize);
     }
 
     public MatrixMultiplyExperiment(Integer minMatrixSize, Integer maxMatrixSize, Integer matrixSizeIncrement, Integer blockSize,
@@ -50,6 +70,89 @@ public class MatrixMultiplyExperiment {
         this.linkCapacity = linkCapacity;
         this.loadOperationCost = loadOperationCost;
         this.saveOperationCost = saveOperationCost;
+
+        this.blockSizeList = new ArrayList<>();
+        this.matrixSizeList = new ArrayList<>();
+
+        initBlockAndMatrixSizeLists(maxMatrixSize, matrixSizeIncrement, blockSize);
+    }
+
+    private void initBlockAndMatrixSizeLists(int maxMatrixSize, int matrixSizeIncrement, int blockSize) {
+        for (int i=1; i <= maxMatrixSize / matrixSizeIncrement; i++) {
+            blockSizeList.add(blockSize);
+            matrixSizeList.add(matrixSizeIncrement * i);
+
+        }
+    }
+
+    private GridSimConfig createSimulationConfig(int blockSize, int matrixSize) {
+
+        GridSimResourceConfig gridSimResourceConfig = new GridSimResourceConfig();
+        gridSimResourceConfig.setArch("gpusim.MatrixMultiply-ExperimentPlugin.Arch");
+        gridSimResourceConfig.setOs("gpusim.MatrixMultiply-ExperimentPlugin.OS");
+        gridSimResourceConfig.setCostPerSec(1.0);
+        gridSimResourceConfig.setTimeZone(0);
+        gridSimResourceConfig.setAllocPolicy(0);
+        gridSimResourceConfig.setBaudRate(resourceCapacity);
+        gridSimResourceConfig.setCount(1);
+        gridSimResourceConfig.setMachines(new LinkedList<>());
+
+        // First Machine
+        GridSimMachineConfig gridSimMachineConfig1 = new GridSimMachineConfig();
+        gridSimMachineConfig1.setPeCount(numberOfGpu);
+        gridSimMachineConfig1.setPeRating(rankOfGpu);
+        gridSimMachineConfig1.setCount(1);
+
+        // Second Machine
+        GridSimMachineConfig gridSimMachineConfig2 = new GridSimMachineConfig();
+        gridSimMachineConfig2.setPeCount(numberOfCpu);
+        gridSimMachineConfig2.setPeRating(rankOfCpu);
+        gridSimMachineConfig2.setCount(1);
+
+        gridSimResourceConfig.getMachines().add(gridSimMachineConfig1);
+        gridSimResourceConfig.getMachines().add(gridSimMachineConfig2);
+
+        // Create gridlet config
+        GridSimGridletConfig gridSimGridletConfig = createGridletConfig(blockSize, matrixSize, saveOperationCost, loadOperationCost);
+
+        GridSimConfig gridSimConfig = new GridSimConfig();
+        gridSimConfig.setVersion(1);
+        gridSimConfig.setLinkBaudRate(linkCapacity);
+        gridSimConfig.setResources(new LinkedList<>());
+        gridSimConfig.setGridlets(new LinkedList<>());
+
+        gridSimConfig.getResources().add(gridSimResourceConfig);
+        gridSimConfig.getGridlets().add(gridSimGridletConfig);
+
+        return gridSimConfig;
+    }
+
+    private GridSimGridletConfig createGridletConfig(int blockSize, int matrixSize, double saveOperationCost, double loadOperationCost) {
+        GridSimGridletConfig gridSimGridletConfig = new GridSimGridletConfig();
+        double length = blockSize * Math.pow(matrixSize, 2) * saveOperationCost +
+                2 * Math.pow(matrixSize, 3) * loadOperationCost;
+        long inputSize = 3 * blockSize;
+        long outputSize = blockSize;
+        int count = matrixSize / blockSize;
+
+        gridSimGridletConfig.setLength(length);
+        gridSimGridletConfig.setInputSize(inputSize);
+        gridSimGridletConfig.setOutputSize(outputSize);
+        gridSimGridletConfig.setCount(count);
+
+        return gridSimGridletConfig;
+    }
+
+    public void serializeSimulationConfigs(List<Integer> matrixSizeList, List<Integer> blockSizeList) throws FileNotFoundException {
+        for (int i = 0; i < matrixSizeList.size(); i++) {
+            GridSimConfig gridSimConfig = createSimulationConfig(blockSizeList.get(i), matrixSizeList.get(i));
+
+            FileOutputStream out = new FileOutputStream("config" + i + ".xml");
+            XMLEncoder xmlEncoder = new XMLEncoder(out);
+            xmlEncoder.writeObject(gridSimConfig);
+            xmlEncoder.flush();
+            xmlEncoder.close();
+        }
     }
 
     public Integer getMinMatrixSize() {
@@ -146,5 +249,21 @@ public class MatrixMultiplyExperiment {
 
     public void setSaveOperationCost(Double saveOperationCost) {
         this.saveOperationCost = saveOperationCost;
+    }
+
+    public List<Integer> getBlockSizeList() {
+        return blockSizeList;
+    }
+
+    public void setBlockSizeList(List<Integer> blockSizeList) {
+        this.blockSizeList = blockSizeList;
+    }
+
+    public List<Integer> getMatrixSizeList() {
+        return matrixSizeList;
+    }
+
+    public void setMatrixSizeList(List<Integer> matrixSizeList) {
+        this.matrixSizeList = matrixSizeList;
     }
 }

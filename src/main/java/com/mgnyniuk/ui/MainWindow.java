@@ -37,6 +37,8 @@ public class MainWindow extends Application {
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
+    private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
+
     public static Experiment runningExperiment;
 
     // Inputs and labels for settings MatrixMultiplyExperiment
@@ -382,27 +384,35 @@ public class MainWindow extends Application {
         Button runSumulationBtn = new Button();
         runSumulationBtn.setOnAction(actionEvent -> {
             if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+
+                int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
+                int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
+                int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
+                int blockSize = Integer.parseInt(blockSizeTextField.getText());
+                int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
+                int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
+                double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
+                double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
+                double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
+                double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
+
+                MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
+                        maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
+                        rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+
                 try {
-                    int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
-                    int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
-                    int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
-                    int blockSize = Integer.parseInt(blockSizeTextField.getText());
-                    int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                    int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
-                    int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                    int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
-                    double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
-                    double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
-                    double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
-                    double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
+                    matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
+                            matrixMultiplyExperiment.getBlockSizeList());
 
-                    ConfigGenerator.generateMatrixMutiplyConfigs(minMatrixSize, maxMatrixSize, matrixSizeIncrement,
-                            blockSize, numberOfCpu, rankOfCpu, numberOfGpu, rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+                    ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(256, 4, null, 0);
+                    matrixMultiplyExperimentRunner.runExperimnet();
 
-                    ExperimentRunner experimentRunner = new ExperimentRunner(16, 2, null, 0);
-                    experimentRunner.runExperimnet();
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -426,7 +436,7 @@ public class MainWindow extends Application {
 
                 try {
                     nBodyExperiment.serializeSimulationConfigs(nBodyExperiment.createInputs());
-                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(10, 1, null, 0);
+                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(98, 2, null, 0);
                     nBodyExperimentRunner.runExperimnet();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -439,7 +449,9 @@ public class MainWindow extends Application {
         runSumulationBtn.setGraphic(runSimulationImage);
 
         // Show results of simulation
-        Button showResultsBtn = new Button("Show Results");
+        Button showResultsBtn = new Button();
+        ImageView showRusultsBtnImg = new ImageView(VIEW_PLOTS);
+        showResultsBtn.setGraphic(showRusultsBtnImg);
         showResultsBtn.setOnAction(actionEvent -> {
             Group resultsRoot = new Group();
             Stage resultsStage = new Stage();
