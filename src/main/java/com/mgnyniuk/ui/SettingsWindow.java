@@ -1,6 +1,6 @@
 package com.mgnyniuk.ui;
 
-import javafx.geometry.HPos;
+import com.mgnyniuk.experiment.Settings;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -22,7 +22,7 @@ public class SettingsWindow {
     private static Label quantityOfParallelSimulationLbl;
     public static TextField quantityOfParallelSimulationTextField;
 
-    public static Scene getSettingsWindowScene() {
+    public static Scene getSettingsWindowScene(Settings settings) {
 
         Group settingsGroup = new Group();
         GridPane gridPane = new GridPane();
@@ -34,7 +34,7 @@ public class SettingsWindow {
         settingLblText.setStyle("-fx-font-weight: bold");
 
         quantityOfParallelSimulationLbl = new Label("Кількість паралельних симуляцій:");
-        quantityOfParallelSimulationTextField = new TextField();
+        quantityOfParallelSimulationTextField = new TextField(settings.getQuantityOfParallelSimulation().toString());
 
         gridPane.setPadding(new Insets(10, 10, 10, 10));
 
@@ -49,7 +49,9 @@ public class SettingsWindow {
         controlButtonsHbox.setSpacing(20);
         // Ok Button save event
         okButton.setOnAction(actionEvent -> {
-
+            settings.setQuantityOfParallelSimulation(Integer.parseInt(quantityOfParallelSimulationTextField.getText()));
+            Stage parentStage = (Stage)okButton.getScene().getWindow();
+            parentStage.close();
         });
 
         // Cancel Button event

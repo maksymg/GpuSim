@@ -7,6 +7,7 @@ import com.mgnyniuk.core.ExperimentRunner;
 import com.mgnyniuk.experiment.Experiment;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import com.mgnyniuk.experiment.NBodyExperiment;
+import com.mgnyniuk.experiment.Settings;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -41,6 +42,7 @@ public class MainWindow extends Application {
     private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
 
     public static Experiment runningExperiment;
+    public static Settings currentSettings;
 
     // Inputs and labels for settings MatrixMultiplyExperiment
     private static Label mainParametersForMatrixMultiplyLbl;
@@ -355,6 +357,9 @@ public class MainWindow extends Application {
         Group root = new Group();
         primaryStage.setScene(new Scene(root, 800, 800));
 
+        // create default settings for experimenting
+        currentSettings = new Settings();
+
         // GridPane for inputs
 
         inputsGridPane.setVisible(false);
@@ -407,7 +412,7 @@ public class MainWindow extends Application {
                     matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
                             matrixMultiplyExperiment.getBlockSizeList());
 
-                    ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(256, 4, null, 0);
+                    ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(matrixMultiplyExperiment.getMatrixSizeList().size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
                     matrixMultiplyExperimentRunner.runExperimnet();
 
                 } catch (FileNotFoundException e) {
@@ -436,8 +441,9 @@ public class MainWindow extends Application {
                         additiveLengthScaleFactor);
 
                 try {
-                    nBodyExperiment.serializeSimulationConfigs(nBodyExperiment.createInputs());
-                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(98, 2, null, 0);
+                    List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
+                    nBodyExperiment.serializeSimulationConfigs(inputs);
+                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(inputs.size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
                     nBodyExperimentRunner.runExperimnet();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -474,7 +480,7 @@ public class MainWindow extends Application {
 
             Stage settingsStage = new Stage();
 
-            settingsStage.setScene(SettingsWindow.getSettingsWindowScene());
+            settingsStage.setScene(SettingsWindow.getSettingsWindowScene(currentSettings));
             settingsStage.setResizable(false);
             settingsStage.show();
         });

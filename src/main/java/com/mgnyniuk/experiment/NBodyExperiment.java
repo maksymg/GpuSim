@@ -222,7 +222,7 @@ public class NBodyExperiment {
         this.additiveLengthScaleFactor = additiveLengthScaleFactor;
     }
 
-    private class Input {
+    public class Input {
 
         private Integer n;
         private Integer threadsPerBlock;
