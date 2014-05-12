@@ -38,6 +38,7 @@ public class MainWindow extends Application {
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
     private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
+    private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
 
     public static Experiment runningExperiment;
 
@@ -465,10 +466,23 @@ public class MainWindow extends Application {
             resultsStage.show();
         });
 
+        // Show settings of simulation
+        Button settingsBtn = new Button();
+        ImageView settingsBtnImg = new ImageView(SETTINGS);
+        settingsBtn.setGraphic(settingsBtnImg);
+        settingsBtn.setOnAction(actionEvent -> {
+
+            Stage settingsStage = new Stage();
+
+            settingsStage.setScene(SettingsWindow.getSettingsWindowScene());
+            settingsStage.setResizable(false);
+            settingsStage.show();
+        });
+
 
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
-        buttonsHBox.getChildren().addAll(newExperimentBtn, runSumulationBtn, showResultsBtn);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, runSumulationBtn, showResultsBtn, settingsBtn);
         buttonsHBox.setAlignment(Pos.TOP_LEFT);
 
         GridPane masterGridPane = new GridPane();
