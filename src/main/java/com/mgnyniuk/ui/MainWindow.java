@@ -8,6 +8,7 @@ import com.mgnyniuk.experiment.Experiment;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import com.mgnyniuk.experiment.NBodyExperiment;
 import com.mgnyniuk.experiment.Settings;
+import com.mgnyniuk.util.FileManager;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -374,6 +375,10 @@ public class MainWindow extends Application {
         Button newExperimentBtn = new Button();
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
+                // delete configs files from previous experiment
+                FileManager.deleteFilesFromCurrentDir("config.*\\.xml");
+                // delete outputs files from previous experiment
+                FileManager.deleteFilesFromCurrentDir("output.*\\.xml");
                 Stage choosingExperimentStage = new Stage();
 
                 choosingExperimentStage.setScene(ChoosingExperimentWindow.getChoosingExperimentScene());
@@ -503,37 +508,6 @@ public class MainWindow extends Application {
 
         masterGridPane.add(inputsGridPane, 1, 2);
         root.getChildren().add(masterGridPane);
-    }
-
-    protected AreaChart<Number, Number> createResultsChart() throws FileNotFoundException {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
-
-        // setup chart
-        ac.setTitle("Simulation Result");
-        xAxis.setLabel("Matrix size");
-        yAxis.setLabel("Time");
-
-        // output list
-        List<GridSimOutput> outputList = ConfigurationUtil.loadOutputs(0, 255);
-
-        // matrix size list
-        List<Integer> matrixSizeList = new ArrayList<Integer>();
-        for (int i = 1; i <= 4096 / 16; i++) {
-            matrixSizeList.add(16 * i);
-        }
-
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        series.setName("Time/Matrix Size");
-
-        for (int i = 0; i < matrixSizeList.size() - 1; i++) {
-            series.getData().add(new XYChart.Data<Number, Number>(matrixSizeList.get(i), outputList.get(i).getTotalSimulationTime()));
-        }
-
-        ac.getData().add(series);
-
-        return ac;
     }
 
     public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {

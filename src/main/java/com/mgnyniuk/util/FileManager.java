@@ -1,34 +1,24 @@
 package com.mgnyniuk.util;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 /**
  * Created by maksym on 5/13/14.
  */
 public class FileManager {
 
-    public static void deleteConfigFiles(int quantity) {
+    public static void deleteFilesFromCurrentDir(String namePattern) {
 
-        for (int i = 0; i < quantity; i++) {
-            File configFile = new File("config" + i + ".xml");
+        String workingDir = System.getProperty("user.dir");
+        System.out.println("Current working directory : " + workingDir);
+        File workDir = new File(workingDir);
+        File[] filesList = workDir.listFiles((dir, name) -> name.matches(namePattern));
 
-            if (configFile.delete()) {
-                System.out.println(configFile.getName() + " is deleted!");
-            } else {
-                System.out.println("Delete operation is failed.");
-            }
+        for (File file : filesList) {
 
-        }
-
-    }
-
-    public static void deleteOutputFiles(int quantity) {
-
-        for (int i = 0; i < quantity; i++) {
-            File configFile = new File("output" + i + ".xml");
-
-            if (configFile.delete()) {
-                System.out.println(configFile.getName() + " is deleted!");
+            if (file.delete()) {
+                System.out.println(file.getName() + " is deleted!");
             } else {
                 System.out.println("Delete operation is failed.");
             }
