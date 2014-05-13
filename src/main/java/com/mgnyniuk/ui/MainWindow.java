@@ -43,6 +43,8 @@ public class MainWindow extends Application {
 
     public static Experiment runningExperiment;
     public static Settings currentSettings;
+    private static MatrixMultiplyExperiment matrixMultiplyExperiment;
+    private static NBodyExperiment nBodyExperiment;
 
     // Inputs and labels for settings MatrixMultiplyExperiment
     private static Label mainParametersForMatrixMultiplyLbl;
@@ -404,7 +406,7 @@ public class MainWindow extends Application {
                 double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
                 double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 
-                MatrixMultiplyExperiment matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
+               matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
                         maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                         rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
 
@@ -436,7 +438,7 @@ public class MainWindow extends Application {
                 double multiplicativeLengthScaleFactor = Double.parseDouble(multiplicativeLengthScaleFactorTextField.getText());
                 double additiveLengthScaleFactor = Double.parseDouble(additiveLengthScaleFactorTextField.getText());
 
-                NBodyExperiment nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
+                nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
                         limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
                         additiveLengthScaleFactor);
 
@@ -464,7 +466,11 @@ public class MainWindow extends Application {
             Stage resultsStage = new Stage();
             resultsStage.setScene(new Scene(resultsRoot));
             try {
-                resultsRoot.getChildren().add(createResultsChart());
+                if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                    resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                } else if (runningExperiment == Experiment.NBODY) {
+
+                }
             } catch (FileNotFoundException ex) {
                 System.out.println(ex.getMessage());
             }
