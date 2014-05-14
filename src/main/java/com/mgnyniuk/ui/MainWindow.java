@@ -25,6 +25,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.Group;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.FileNotFoundException;
@@ -36,6 +38,8 @@ import java.util.List;
  * Created by maksym on 3/23/14.
  */
 public class MainWindow extends Application {
+
+    final Logger logger = LoggerFactory.getLogger(MainWindow.class);
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
@@ -414,6 +418,7 @@ public class MainWindow extends Application {
                matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
                         maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                         rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+                logger.info("Створено експеримент множення матриць.");
 
                 try {
                     matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
