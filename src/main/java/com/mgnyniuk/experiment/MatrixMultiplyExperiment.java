@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by maksym on 4/28/14.
@@ -152,6 +153,13 @@ public class MatrixMultiplyExperiment {
             xmlEncoder.writeObject(gridSimConfig);
             xmlEncoder.flush();
             xmlEncoder.close();
+        }
+    }
+
+    public void populateConfigMap(List<Integer> matrixSizeList, List<Integer> blockSizeList, Map<Integer, GridSimConfig> configMap) throws FileNotFoundException {
+        for (int i = 0; i < matrixSizeList.size(); i++) {
+            GridSimConfig gridSimConfig = createSimulationConfig(blockSizeList.get(i), matrixSizeList.get(i));
+            configMap.put(i, gridSimConfig);
         }
     }
 

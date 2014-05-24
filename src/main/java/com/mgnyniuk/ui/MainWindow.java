@@ -1,9 +1,12 @@
 package com.mgnyniuk.ui;
 
-import com.gpusim2.config.GridSimOutput;
-import com.mgnyniuk.core.ConfigGenerator;
-import com.mgnyniuk.core.ConfigurationUtil;
+import com.gpusim2.config.GridSimConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.Member;
 import com.mgnyniuk.core.ExperimentRunner;
+import com.mgnyniuk.core.distributed.SimulationRunner;
 import com.mgnyniuk.experiment.Experiment;
 import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
 import com.mgnyniuk.experiment.NBodyExperiment;
@@ -12,9 +15,6 @@ import com.mgnyniuk.util.FileManager;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Created by maksym on 3/23/14.
@@ -420,12 +420,38 @@ public class MainWindow extends Application {
                         rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
                 logger.info("Створено експеримент множення матриць.");
 
-                try {
-                    matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
-                            matrixMultiplyExperiment.getBlockSizeList());
+                boolean isDistributedSimulation = true;
 
-                    ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(matrixMultiplyExperiment.getMatrixSizeList().size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
-                    matrixMultiplyExperimentRunner.runExperimnet();
+                try {
+
+                    if (isDistributedSimulation) {
+                        HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance();
+                        Map<Integer, GridSimConfig> configMap = hzInstance.getMap("configMap");
+
+                        IExecutorService executorService = hzInstance.getExecutorService("default");
+                        Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
+
+                        Set<Member> memberSet = new HashSet<Member>();
+                        for(HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
+                            memberSet = hazelcastInstance.getCluster().getMembers();
+                        }
+
+                        matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
+                                matrixMultiplyExperiment.getBlockSizeList(), configMap);
+
+                        for(Member member : memberSet) {
+                            Future<Boolean> future =  executorService.submitToMember(new SimulationRunner(), member);
+                        }
+
+                        System.out.println(configMap.size());
+
+                    }  else {
+                        matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
+                                matrixMultiplyExperiment.getBlockSizeList());
+
+                        ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(matrixMultiplyExperiment.getMatrixSizeList().size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
+                        matrixMultiplyExperimentRunner.runExperimnet();
+                    }
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
