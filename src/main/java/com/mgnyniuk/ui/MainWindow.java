@@ -46,6 +46,8 @@ public class MainWindow extends Application {
     private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
     private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
 
+    public static Map<Integer, GridSimConfig> configMap;
+
     public static Experiment runningExperiment;
     public static Settings currentSettings;
     private static MatrixMultiplyExperiment matrixMultiplyExperiment;
@@ -426,7 +428,7 @@ public class MainWindow extends Application {
 
                     if (isDistributedSimulation) {
                         HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance();
-                        Map<Integer, GridSimConfig> configMap = hzInstance.getMap("configMap");
+                        configMap = hzInstance.getMap("configMap");
 
                         IExecutorService executorService = hzInstance.getExecutorService("default");
                         Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
@@ -439,8 +441,15 @@ public class MainWindow extends Application {
                         matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
                                 matrixMultiplyExperiment.getBlockSizeList(), configMap);
 
+                        int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size()/memberSet.size();
+                        int startIndexPerNode = 0;
+
                         for(Member member : memberSet) {
-                            Future<Boolean> future =  executorService.submitToMember(new SimulationRunner(), member);
+                            System.out.println(startIndexPerNode);
+                            Future<Boolean> future =  executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
+                                    currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
+                            startIndexPerNode += quantityPerClusterNode;
+
                         }
 
                         System.out.println(configMap.size());
