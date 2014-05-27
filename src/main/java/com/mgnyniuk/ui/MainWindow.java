@@ -1,6 +1,7 @@
 package com.mgnyniuk.ui;
 
 import com.gpusim2.config.GridSimConfig;
+import com.gpusim2.config.GridSimOutput;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -41,12 +43,15 @@ public class MainWindow extends Application {
 
     final Logger logger = LoggerFactory.getLogger(MainWindow.class);
 
+    HazelcastInstance hzInstance;
+
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
     private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
     private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
 
     public static Map<Integer, GridSimConfig> configMap;
+    public static Map<Integer, GridSimOutput> outputMap;
 
     public static Experiment runningExperiment;
     public static Settings currentSettings;
@@ -375,6 +380,7 @@ public class MainWindow extends Application {
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);
 
+        boolean isDistributedSimulation = true;
 
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
@@ -422,13 +428,15 @@ public class MainWindow extends Application {
                         rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
                 logger.info("Створено експеримент множення матриць.");
 
-                boolean isDistributedSimulation = true;
+
+                List<Future<Boolean>> futuresList = new ArrayList<Future<Boolean>>();
 
                 try {
 
                     if (isDistributedSimulation) {
-                        HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance();
+
                         configMap = hzInstance.getMap("configMap");
+                        outputMap = hzInstance.getMap("outputMap");
 
                         IExecutorService executorService = hzInstance.getExecutorService("default");
                         Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
@@ -448,11 +456,15 @@ public class MainWindow extends Application {
                             System.out.println(startIndexPerNode);
                             Future<Boolean> future =  executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
                                     currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
+                            futuresList.add(future);
                             startIndexPerNode += quantityPerClusterNode;
-
                         }
 
-                        System.out.println(configMap.size());
+                        for (Future<Boolean> future : futuresList) {
+                            System.out.println(future.get());
+                        }
+
+                        System.out.println("OutputMap Size: " + outputMap.size());
 
                     }  else {
                         matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
@@ -465,6 +477,10 @@ public class MainWindow extends Application {
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
             }
@@ -512,7 +528,12 @@ public class MainWindow extends Application {
             resultsStage.setScene(new Scene(resultsRoot));
             try {
                 if (runningExperiment == Experiment.MATRIXMULTIPLY) {
-                    resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                    if (isDistributedSimulation) {
+                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(outputMap, matrixMultiplyExperiment.getMatrixSizeList()));
+
+                    } else {
+                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                    }
                 } else if (runningExperiment == Experiment.NBODY) {
 
                 }
@@ -599,6 +620,7 @@ public class MainWindow extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        hzInstance = Hazelcast.newHazelcastInstance();
         init(stage);
         stage.show();
     }
