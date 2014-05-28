@@ -6,6 +6,7 @@ package com.mgnyniuk.experiment;
 public class Settings {
 
     private Integer quantityOfParallelSimulation;
+    private Boolean isDistributedSimulation;
 
     public Settings() {
         this.quantityOfParallelSimulation = 1;
@@ -21,5 +22,13 @@ public class Settings {
 
     public void setQuantityOfParallelSimulation(Integer quantityOfParallelSimulation) {
         this.quantityOfParallelSimulation = quantityOfParallelSimulation;
+    }
+
+    public Boolean getIsDistributedSimulation() {
+        return isDistributedSimulation;
+    }
+
+    public void setIsDistributedSimulation(Boolean isDistributedSimulation) {
+        this.isDistributedSimulation = isDistributedSimulation;
     }
 }

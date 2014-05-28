@@ -1,10 +1,13 @@
 package com.mgnyniuk.ui;
 
 import com.mgnyniuk.experiment.Settings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -17,10 +20,13 @@ import javafx.stage.Stage;
  */
 public class SettingsWindow {
 
-    private static Text settingLblText;
+    private static Text settingsParallelLblText;
+    private static Text settingsDistributedLblText;
 
     private static Label quantityOfParallelSimulationLbl;
     public static TextField quantityOfParallelSimulationTextField;
+
+    private static Boolean isDistributedSimulation;
 
     public static Scene getSettingsWindowScene(Settings settings) {
 
@@ -30,26 +36,50 @@ public class SettingsWindow {
         Button cancelButton = new Button("Скасувати");
         HBox controlButtonsHbox = new HBox();
 
-        settingLblText = new Text("Налаштування паралельної поведінки:");
-        settingLblText.setStyle("-fx-font-weight: bold");
+        CheckBox distributedSimulationCheckBox = new CheckBox("Розподілена симуляція");
+        distributedSimulationCheckBox.setIndeterminate(false);
+
+        settingsParallelLblText = new Text("Налаштування паралельної поведінки:");
+        settingsParallelLblText.setStyle("-fx-font-weight: bold");
 
         quantityOfParallelSimulationLbl = new Label("Кількість паралельних симуляцій:");
         quantityOfParallelSimulationTextField = new TextField(settings.getQuantityOfParallelSimulation().toString());
 
+        settingsDistributedLblText = new Text("Налашутування розподіленої поведінки:");
+        settingsDistributedLblText.setStyle("-fx-font-weight: bold");
+
         gridPane.setPadding(new Insets(10, 10, 10, 10));
 
-        gridPane.add(settingLblText, 1, 1);
-        gridPane.setColumnSpan(settingLblText, 2);
-        GridPane.setMargin(settingLblText, new Insets(0, 0, 15, 0));
+        gridPane.add(settingsParallelLblText, 1, 1);
+        gridPane.setColumnSpan(settingsParallelLblText, 2);
+        GridPane.setMargin(settingsParallelLblText, new Insets(0, 0, 15, 0));
 
         gridPane.add(quantityOfParallelSimulationLbl, 1, 2);
         gridPane.add(quantityOfParallelSimulationTextField, 2, 2);
 
+        gridPane.add(settingsDistributedLblText, 1, 3);
+        gridPane.setColumnSpan(settingsDistributedLblText, 2);
+        GridPane.setMargin(settingsDistributedLblText, new Insets(10, 0, 15, 0));
+
+        gridPane.add(distributedSimulationCheckBox, 1, 4);
+        gridPane.setColumnSpan(distributedSimulationCheckBox, 2);
+        GridPane.setMargin(distributedSimulationCheckBox, new Insets(0, 0, 15, 0));
+
         // Prepare Hbox for buttons
         controlButtonsHbox.setSpacing(20);
+
+        // checkBox event
+        distributedSimulationCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean old_val, Boolean new_val) {
+                isDistributedSimulation = new_val;
+            }
+        });
+
         // Ok Button save event
         okButton.setOnAction(actionEvent -> {
             settings.setQuantityOfParallelSimulation(Integer.parseInt(quantityOfParallelSimulationTextField.getText()));
+            settings.setIsDistributedSimulation(isDistributedSimulation);
             Stage parentStage = (Stage)okButton.getScene().getWindow();
             parentStage.close();
         });
@@ -62,7 +92,7 @@ public class SettingsWindow {
 
         controlButtonsHbox.getChildren().addAll(okButton, cancelButton);
 
-        gridPane.add(controlButtonsHbox, 1, 3);
+        gridPane.add(controlButtonsHbox, 1, 5);
 
         settingsGroup.getChildren().add(gridPane);
 
