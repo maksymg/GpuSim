@@ -44,7 +44,7 @@ public class SimulationRunner implements Callable<Boolean>, Serializable {
 
         for (Integer i = 0; i < overallProcessesQuantity; i++) {
 
-            GridSimConfig gridSimConfig = configMap.get(i);
+            GridSimConfig gridSimConfig = configMap.get(i + startIndex);
 
             FileOutputStream out = new FileOutputStream("config" + (i + startIndex) + ".xml");
             XMLEncoder xmlEncoder = new XMLEncoder(out);
