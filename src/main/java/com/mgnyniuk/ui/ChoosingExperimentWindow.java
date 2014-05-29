@@ -76,6 +76,7 @@ public class ChoosingExperimentWindow {
                 MainWindow.prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
                 MainWindow.setInputsGridPaneVisiblity(true);
                 MainWindow.setVisibleModelingParameterBlockForMatrixMultiply(false);
+                MainWindow.setRunSimulationBtnDisable(false);
             } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
 
                 // set running Experiment
@@ -86,6 +87,7 @@ public class ChoosingExperimentWindow {
                 MainWindow.prepareFieldsForNBodyExperiment(nBodyExperiment);
                 MainWindow.setInputsGridPaneVisiblity(true);
                 MainWindow.setVisibleModelingParameterBlockForNBody(false);
+                MainWindow.setRunSimulationBtnDisable(false);
             }
 
             parentStage.close();

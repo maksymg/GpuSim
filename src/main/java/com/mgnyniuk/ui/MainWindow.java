@@ -356,6 +356,8 @@ public class MainWindow extends Application {
     }
 
     private static GridPane inputsGridPane = new GridPane();
+    private static Button runSimulationBtn;
+    private static Button showResultsBtn;
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
@@ -366,6 +368,14 @@ public class MainWindow extends Application {
         // set modelingParameters block invisible for NBody Experiment
         //setVisibleModelingParameterBlockForNBody(false);
     }
+
+    public static void setRunSimulationBtnDisable(boolean isDisabled) {
+        runSimulationBtn.setDisable(isDisabled);
+    }
+
+     public static void setShowResultsBtnDisable(boolean isDisabled) {
+         showResultsBtn.setDisable(isDisabled);
+     }
 
     private void init(Stage primaryStage) {
         Group root = new Group();
@@ -379,6 +389,9 @@ public class MainWindow extends Application {
         inputsGridPane.setVisible(false);
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);
+
+        runSimulationBtn = new Button();
+        showResultsBtn = new Button();
 
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
@@ -404,8 +417,11 @@ public class MainWindow extends Application {
 
         // Run Simulation Button
         ImageView runSimulationImage = new ImageView(RUN_MODELING);
-        Button runSumulationBtn = new Button();
-        runSumulationBtn.setOnAction(actionEvent -> {
+
+
+        runSimulationBtn.setDisable(true);
+
+        runSimulationBtn.setOnAction(actionEvent -> {
             if (runningExperiment == Experiment.MATRIXMULTIPLY) {
 
                 int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
@@ -421,7 +437,7 @@ public class MainWindow extends Application {
                 double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
                 double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 
-               matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
+                matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
                         maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                         rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
                 logger.info("Створено експеримент множення матриць.");
@@ -440,19 +456,19 @@ public class MainWindow extends Application {
                         Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
 
                         Set<Member> memberSet = new HashSet<Member>();
-                        for(HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
+                        for (HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
                             memberSet = hazelcastInstance.getCluster().getMembers();
                         }
 
                         matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
                                 matrixMultiplyExperiment.getBlockSizeList(), configMap);
 
-                        int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size()/memberSet.size();
+                        int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
                         int startIndexPerNode = 0;
 
-                        for(Member member : memberSet) {
+                        for (Member member : memberSet) {
                             System.out.println(startIndexPerNode);
-                            Future<Boolean> future =  executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
+                            Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
                                     currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
                             futuresList.add(future);
                             startIndexPerNode += quantityPerClusterNode;
@@ -464,7 +480,7 @@ public class MainWindow extends Application {
 
                         System.out.println("OutputMap Size: " + outputMap.size());
 
-                    }  else {
+                    } else {
                         matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
                                 matrixMultiplyExperiment.getBlockSizeList());
 
@@ -514,12 +530,13 @@ public class MainWindow extends Application {
 
             }
         });
-        runSumulationBtn.setGraphic(runSimulationImage);
+        runSimulationBtn.setGraphic(runSimulationImage);
 
         // Show results of simulation
-        Button showResultsBtn = new Button();
-        ImageView showRusultsBtnImg = new ImageView(VIEW_PLOTS);
-        showResultsBtn.setGraphic(showRusultsBtnImg);
+        ImageView showResultsBtnImg = new ImageView(VIEW_PLOTS);
+        showResultsBtn.setDisable(true);
+
+        showResultsBtn.setGraphic(showResultsBtnImg);
         showResultsBtn.setOnAction(actionEvent -> {
             Group resultsRoot = new Group();
             Stage resultsStage = new Stage();
@@ -558,7 +575,7 @@ public class MainWindow extends Application {
 
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
-        buttonsHBox.getChildren().addAll(newExperimentBtn, runSumulationBtn, showResultsBtn, settingsBtn);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, runSimulationBtn, showResultsBtn, settingsBtn);
         buttonsHBox.setAlignment(Pos.TOP_LEFT);
 
         GridPane masterGridPane = new GridPane();
