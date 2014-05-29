@@ -43,7 +43,7 @@ public class MainWindow extends Application {
 
     final Logger logger = LoggerFactory.getLogger(MainWindow.class);
 
-    HazelcastInstance hzInstance;
+    public static HazelcastInstance hzInstance;
 
     private static final Image NEW_BTN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_new.png"));
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
@@ -380,8 +380,6 @@ public class MainWindow extends Application {
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);
 
-        boolean isDistributedSimulation = true;
-
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
         Button newExperimentBtn = new Button();
@@ -433,7 +431,7 @@ public class MainWindow extends Application {
 
                 try {
 
-                    if (isDistributedSimulation) {
+                    if (currentSettings.getIsDistributedSimulation()) {
 
                         configMap = hzInstance.getMap("configMap");
                         outputMap = hzInstance.getMap("outputMap");
@@ -528,7 +526,7 @@ public class MainWindow extends Application {
             resultsStage.setScene(new Scene(resultsRoot));
             try {
                 if (runningExperiment == Experiment.MATRIXMULTIPLY) {
-                    if (isDistributedSimulation) {
+                    if (currentSettings.getIsDistributedSimulation()) {
                         resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(outputMap, matrixMultiplyExperiment.getMatrixSizeList()));
 
                     } else {
@@ -620,7 +618,7 @@ public class MainWindow extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        hzInstance = Hazelcast.newHazelcastInstance();
+
         init(stage);
         stage.show();
     }

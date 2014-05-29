@@ -1,5 +1,6 @@
 package com.mgnyniuk.ui;
 
+import com.hazelcast.core.Hazelcast;
 import com.mgnyniuk.experiment.Settings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,7 +27,7 @@ public class SettingsWindow {
     private static Label quantityOfParallelSimulationLbl;
     public static TextField quantityOfParallelSimulationTextField;
 
-    private static Boolean isDistributedSimulation;
+    private static Boolean isDistributedSimulation = false;
 
     public static Scene getSettingsWindowScene(Settings settings) {
 
@@ -38,6 +39,7 @@ public class SettingsWindow {
 
         CheckBox distributedSimulationCheckBox = new CheckBox("Розподілена симуляція");
         distributedSimulationCheckBox.setIndeterminate(false);
+        distributedSimulationCheckBox.setSelected(isDistributedSimulation);
 
         settingsParallelLblText = new Text("Налаштування паралельної поведінки:");
         settingsParallelLblText.setStyle("-fx-font-weight: bold");
@@ -80,6 +82,12 @@ public class SettingsWindow {
         okButton.setOnAction(actionEvent -> {
             settings.setQuantityOfParallelSimulation(Integer.parseInt(quantityOfParallelSimulationTextField.getText()));
             settings.setIsDistributedSimulation(isDistributedSimulation);
+
+            if (isDistributedSimulation) {
+                MainWindow.hzInstance = Hazelcast.newHazelcastInstance();
+            } else {
+                Hazelcast.shutdownAll();
+            }
             Stage parentStage = (Stage)okButton.getScene().getWindow();
             parentStage.close();
         });
