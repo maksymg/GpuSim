@@ -10,6 +10,7 @@ public class Settings {
 
     public Settings() {
         this.quantityOfParallelSimulation = 1;
+        this.isDistributedSimulation = false;
     }
 
     public Settings(Integer quantityOfParallelSimulation) {
