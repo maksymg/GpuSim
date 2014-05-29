@@ -422,6 +422,13 @@ public class MainWindow extends Application {
         runSimulationBtn.setDisable(true);
 
         runSimulationBtn.setOnAction(actionEvent -> {
+
+            Stage simulationProgressStage = new Stage();
+
+            simulationProgressStage.setScene(ProgressWindow.getProgressWindowScene());
+            simulationProgressStage.setResizable(false);
+            simulationProgressStage.show();
+
             if (runningExperiment == Experiment.MATRIXMULTIPLY) {
 
                 int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
