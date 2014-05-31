@@ -8,12 +8,10 @@ import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
 import com.mgnyniuk.core.ExperimentRunner;
 import com.mgnyniuk.core.distributed.SimulationRunner;
-import com.mgnyniuk.experiment.Experiment;
-import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
-import com.mgnyniuk.experiment.NBodyExperiment;
-import com.mgnyniuk.experiment.Settings;
+import com.mgnyniuk.experiment.*;
 import com.mgnyniuk.util.FileManager;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -41,7 +39,7 @@ import java.util.concurrent.Future;
  */
 public class MainWindow extends Application {
 
-    final Logger logger = LoggerFactory.getLogger(MainWindow.class);
+    final static Logger logger = LoggerFactory.getLogger(MainWindow.class);
 
     public static HazelcastInstance hzInstance;
 
@@ -357,7 +355,7 @@ public class MainWindow extends Application {
 
     private static GridPane inputsGridPane = new GridPane();
     private static Button runSimulationBtn;
-    private static Button showResultsBtn;
+    public static Button showResultsBtn;
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
@@ -373,9 +371,120 @@ public class MainWindow extends Application {
         runSimulationBtn.setDisable(isDisabled);
     }
 
-     public static void setShowResultsBtnDisable(boolean isDisabled) {
+    public static void setShowResultsBtnDisable(boolean isDisabled) {
          showResultsBtn.setDisable(isDisabled);
      }
+
+    public static void runSimulation() {
+
+        if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+
+            int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
+            int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
+            int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
+            int blockSize = Integer.parseInt(blockSizeTextField.getText());
+            int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+            int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
+            int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+            int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
+            double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
+            double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
+            double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
+            double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
+
+            matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
+                    maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
+                    rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+            logger.info("Створено експеримент множення матриць.");
+
+
+            List<Future<Boolean>> futuresList = new ArrayList<Future<Boolean>>();
+
+            try {
+
+                if (currentSettings.getIsDistributedSimulation()) {
+
+                    configMap = hzInstance.getMap("configMap");
+                    outputMap = hzInstance.getMap("outputMap");
+
+                    IExecutorService executorService = hzInstance.getExecutorService("default");
+                    Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
+
+                    Set<Member> memberSet = new HashSet<Member>();
+                    for (HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
+                        memberSet = hazelcastInstance.getCluster().getMembers();
+                    }
+
+                    matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
+                            matrixMultiplyExperiment.getBlockSizeList(), configMap);
+
+                    int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
+                    int startIndexPerNode = 0;
+
+                    for (Member member : memberSet) {
+                        System.out.println(startIndexPerNode);
+                        Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
+                                currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
+                        futuresList.add(future);
+                        startIndexPerNode += quantityPerClusterNode;
+                    }
+
+                    for (Future<Boolean> future : futuresList) {
+                        System.out.println(future.get());
+                    }
+
+                    System.out.println("OutputMap Size: " + outputMap.size());
+
+                } else {
+                    matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
+                            matrixMultiplyExperiment.getBlockSizeList());
+
+                    ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(matrixMultiplyExperiment.getMatrixSizeList().size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
+                    matrixMultiplyExperimentRunner.runExperimnet();
+                }
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (runningExperiment == Experiment.NBODY) {
+
+            int minN = Integer.parseInt(minNTextField.getText());
+            int maxN = Integer.parseInt(maxNTextField.getText());
+            int minTPB = Integer.parseInt(minTPBTextField.getText());
+            int maxTPB = Integer.parseInt(maxTPBTextField.getText());
+
+            int gpuCoreRating = Integer.parseInt(gpuCoreRatingTextField.getText());
+            int limitationDivider = Integer.parseInt(limitationsDividerTextField.getText());
+            double smallTPBPenaltyWeight = Double.parseDouble(smallTPBPenaltyWeightTextField.getText());
+            double largeTPBPenaltyWeight = Double.parseDouble(largeTPBPenaltyWeightTextField.getText());
+            double multiplicativeLengthScaleFactor = Double.parseDouble(multiplicativeLengthScaleFactorTextField.getText());
+            double additiveLengthScaleFactor = Double.parseDouble(additiveLengthScaleFactorTextField.getText());
+
+            nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
+                    limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
+                    additiveLengthScaleFactor);
+
+            try {
+                List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
+                nBodyExperiment.serializeSimulationConfigs(inputs);
+                ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(inputs.size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
+                nBodyExperimentRunner.runExperimnet();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 
     private void init(Stage primaryStage) {
         Group root = new Group();
@@ -396,12 +505,17 @@ public class MainWindow extends Application {
         // New Experiment Button
         ImageView newBtnImage = new ImageView(NEW_BTN);
         Button newExperimentBtn = new Button();
+
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
                 // delete configs files from previous experiment
                 FileManager.deleteFilesFromCurrentDir("config.*\\.xml");
                 // delete outputs files from previous experiment
                 FileManager.deleteFilesFromCurrentDir("output.*\\.xml");
+
+                // Disable show results btn
+                showResultsBtn.setDisable(true);
+
                 Stage choosingExperimentStage = new Stage();
 
                 choosingExperimentStage.setScene(ChoosingExperimentWindow.getChoosingExperimentScene());
@@ -413,6 +527,7 @@ public class MainWindow extends Application {
                 System.out.println(ex.getMessage());
             }
         });
+
         newExperimentBtn.setGraphic(newBtnImage);
 
         // Run Simulation Button
@@ -429,114 +544,9 @@ public class MainWindow extends Application {
             simulationProgressStage.setResizable(false);
             simulationProgressStage.show();
 
-            if (runningExperiment == Experiment.MATRIXMULTIPLY) {
 
-                int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
-                int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
-                int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
-                int blockSize = Integer.parseInt(blockSizeTextField.getText());
-                int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
-                int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
-                int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
-                double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
-                double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
-                double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
-                double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
-
-                matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
-                        maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
-                        rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
-                logger.info("Створено експеримент множення матриць.");
-
-
-                List<Future<Boolean>> futuresList = new ArrayList<Future<Boolean>>();
-
-                try {
-
-                    if (currentSettings.getIsDistributedSimulation()) {
-
-                        configMap = hzInstance.getMap("configMap");
-                        outputMap = hzInstance.getMap("outputMap");
-
-                        IExecutorService executorService = hzInstance.getExecutorService("default");
-                        Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
-
-                        Set<Member> memberSet = new HashSet<Member>();
-                        for (HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
-                            memberSet = hazelcastInstance.getCluster().getMembers();
-                        }
-
-                        matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
-                                matrixMultiplyExperiment.getBlockSizeList(), configMap);
-
-                        int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
-                        int startIndexPerNode = 0;
-
-                        for (Member member : memberSet) {
-                            System.out.println(startIndexPerNode);
-                            Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
-                                    currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
-                            futuresList.add(future);
-                            startIndexPerNode += quantityPerClusterNode;
-                        }
-
-                        for (Future<Boolean> future : futuresList) {
-                            System.out.println(future.get());
-                        }
-
-                        System.out.println("OutputMap Size: " + outputMap.size());
-
-                    } else {
-                        matrixMultiplyExperiment.serializeSimulationConfigs(matrixMultiplyExperiment.getMatrixSizeList(),
-                                matrixMultiplyExperiment.getBlockSizeList());
-
-                        ExperimentRunner matrixMultiplyExperimentRunner = new ExperimentRunner(matrixMultiplyExperiment.getMatrixSizeList().size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
-                        matrixMultiplyExperimentRunner.runExperimnet();
-                    }
-
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (runningExperiment == Experiment.NBODY) {
-
-                int minN = Integer.parseInt(minNTextField.getText());
-                int maxN = Integer.parseInt(maxNTextField.getText());
-                int minTPB = Integer.parseInt(minTPBTextField.getText());
-                int maxTPB = Integer.parseInt(maxTPBTextField.getText());
-
-                int gpuCoreRating = Integer.parseInt(gpuCoreRatingTextField.getText());
-                int limitationDivider = Integer.parseInt(limitationsDividerTextField.getText());
-                double smallTPBPenaltyWeight = Double.parseDouble(smallTPBPenaltyWeightTextField.getText());
-                double largeTPBPenaltyWeight = Double.parseDouble(largeTPBPenaltyWeightTextField.getText());
-                double multiplicativeLengthScaleFactor = Double.parseDouble(multiplicativeLengthScaleFactorTextField.getText());
-                double additiveLengthScaleFactor = Double.parseDouble(additiveLengthScaleFactorTextField.getText());
-
-                nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
-                        limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
-                        additiveLengthScaleFactor);
-
-                try {
-                    List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
-                    nBodyExperiment.serializeSimulationConfigs(inputs);
-                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(inputs.size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
-                    nBodyExperimentRunner.runExperimnet();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
         });
+
         runSimulationBtn.setGraphic(runSimulationImage);
 
         // Show results of simulation
@@ -545,25 +555,7 @@ public class MainWindow extends Application {
 
         showResultsBtn.setGraphic(showResultsBtnImg);
         showResultsBtn.setOnAction(actionEvent -> {
-            Group resultsRoot = new Group();
-            Stage resultsStage = new Stage();
-            resultsStage.setScene(new Scene(resultsRoot));
-            try {
-                if (runningExperiment == Experiment.MATRIXMULTIPLY) {
-                    if (currentSettings.getIsDistributedSimulation()) {
-                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(outputMap, matrixMultiplyExperiment.getMatrixSizeList()));
-
-                    } else {
-                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
-                    }
-                } else if (runningExperiment == Experiment.NBODY) {
-
-                }
-            } catch (FileNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
-
-            resultsStage.show();
+            showResults();
         });
 
         // Show settings of simulation
@@ -590,9 +582,31 @@ public class MainWindow extends Application {
 
 
         masterGridPane.add(inputsGridPane, 1, 2);
+        masterGridPane.setPadding(new Insets(5, 5, 5, 5));
         root.getChildren().add(masterGridPane);
     }
 
+    public static void showResults() {
+        Group resultsRoot = new Group();
+        Stage resultsStage = new Stage();
+        resultsStage.setScene(new Scene(resultsRoot));
+        try {
+            if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                if (currentSettings.getIsDistributedSimulation()) {
+                    resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(outputMap, matrixMultiplyExperiment.getMatrixSizeList()));
+
+                } else {
+                    resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                }
+            } else if (runningExperiment == Experiment.NBODY) {
+
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        resultsStage.show();
+    }
     public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);
         numberOfCpuTextField.setVisible(isVisible);
