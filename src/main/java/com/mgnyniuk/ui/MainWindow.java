@@ -6,14 +6,19 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.core.Member;
+import com.mgnyniuk.core.ConfigurationUtil;
 import com.mgnyniuk.core.ExperimentRunner;
 import com.mgnyniuk.core.distributed.SimulationRunner;
 import com.mgnyniuk.experiment.*;
 import com.mgnyniuk.util.FileManager;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -359,12 +364,6 @@ public class MainWindow extends Application {
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
-
-        // set modelingParameters block invisible for Matrix Multiply Experiment
-        //setVisibleModelingParameterBlockForMatrixMultiply(false);
-
-        // set modelingParameters block invisible for NBody Experiment
-        //setVisibleModelingParameterBlockForNBody(false);
     }
 
     public static void setRunSimulationBtnDisable(boolean isDisabled) {
@@ -372,8 +371,8 @@ public class MainWindow extends Application {
     }
 
     public static void setShowResultsBtnDisable(boolean isDisabled) {
-         showResultsBtn.setDisable(isDisabled);
-     }
+        showResultsBtn.setDisable(isDisabled);
+    }
 
     public static void runSimulation() {
 
@@ -395,10 +394,10 @@ public class MainWindow extends Application {
             matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
                     maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                     rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+
             logger.info("Створено експеримент множення матриць.");
 
-
-            List<Future<Boolean>> futuresList = new ArrayList<Future<Boolean>>();
+            List<Future<Boolean>> futuresList = new ArrayList<>();
 
             try {
 
@@ -410,7 +409,8 @@ public class MainWindow extends Application {
                     IExecutorService executorService = hzInstance.getExecutorService("default");
                     Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
 
-                    Set<Member> memberSet = new HashSet<Member>();
+                    // get hazelcast members
+                    Set<Member> memberSet = new HashSet<>();
                     for (HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
                         memberSet = hazelcastInstance.getCluster().getMembers();
                     }
@@ -600,6 +600,73 @@ public class MainWindow extends Application {
                 }
             } else if (runningExperiment == Experiment.NBODY) {
 
+                Map<String, Integer> timeTPBGraphicMap = new HashMap<>();
+                Map<Integer, String> timeNGraphicMap = new HashMap<>();
+
+                // counter
+
+                for (int i = nBodyExperiment.getMinN(); i <= nBodyExperiment.getMaxN(); i *= 2) {
+                    timeNGraphicMap.put(i, "Time(TPB); N = " + i);
+                }
+
+                GridPane gridPane = new GridPane();
+
+                Map<Integer, GridSimConfig> gridSimConfigMap;
+                Map<Integer, GridSimOutput> gridSimOutputMap;
+
+                gridSimConfigMap = ConfigurationUtil.deserializeConfigsToMap();
+                gridSimOutputMap = ConfigurationUtil.deserializeOutputsToMap();
+
+
+                // ChoiceBox for type of graphic
+                ChoiceBox cb = new ChoiceBox();
+                for (Map.Entry<Integer, String> entry : timeNGraphicMap.entrySet()) {
+                    cb.getItems().add(entry.getValue());
+                }
+
+                //cb.getItems().addAll("Dog", "Cat", "Horse");
+                cb.getSelectionModel().selectFirst();
+
+                GridPane.setConstraints(cb, 0, 0);
+                GridPane.setMargin(cb, new Insets(10, 10, 10, 10));
+                GridPane.setHalignment(cb, HPos.LEFT);
+
+                if (currentSettings.getIsDistributedSimulation()) {
+
+                } else {
+
+                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                    cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+                        @Override
+                        public void changed(ObservableValue observableValue, Object o, Object new_value) {
+                            gridPane.getChildren().clear();
+                            Integer key = null;
+
+                            for(Map.Entry entry: timeNGraphicMap.entrySet()){
+                                if(new_value.equals(entry.getValue())){
+                                    key = (Integer)entry.getKey();
+                                    break; //breaking because its one to one map
+                                }
+                            }
+
+                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+
+                            GridPane.setConstraints(nBodyChart, 0, 1);
+                            GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
+                            GridPane.setHalignment(nBodyChart, HPos.LEFT);
+
+                            gridPane.getChildren().addAll(cb, nBodyChart);
+                        }
+                    });
+
+                    GridPane.setConstraints(nBodyChart, 0, 1);
+                    GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
+                    GridPane.setHalignment(nBodyChart, HPos.LEFT);
+
+                    gridPane.getChildren().addAll(cb, nBodyChart);
+
+                    resultsRoot.getChildren().add(gridPane);
+                }
             }
         } catch (FileNotFoundException ex) {
             System.out.println(ex.getMessage());
@@ -607,6 +674,7 @@ public class MainWindow extends Application {
 
         resultsStage.show();
     }
+    private static AreaChart<Number, Number> nBodyChart;
     public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);
         numberOfCpuTextField.setVisible(isVisible);
