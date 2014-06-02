@@ -30,7 +30,7 @@ public class ProgressWindow {
             pb.setProgress(0);
             MainWindow.runSimulation();
             pb.setProgress(1);
-            MainWindow.showResultsBtn.setDisable(false);
+            MainWindow.setShowResultsBtnDisable(false);
             MainWindow.showResults();
             parentStage.close();
         });

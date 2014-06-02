@@ -27,12 +27,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +54,16 @@ public class MainWindow extends Application {
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
     private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
     private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
+    private static final Image SAVE_AS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_saveAs.png"));
 
+    private static GridPane inputsGridPane = new GridPane();
+    private static Button runSimulationBtn;
+    private static Button showResultsBtn;
+    private static Button newExperimentBtn;
+    private static Button settingsBtn;
+    private static Button saveAsBtn;
+
+    // Hazelcast distributed maps
     public static Map<Integer, GridSimConfig> configMap;
     public static Map<Integer, GridSimOutput> outputMap;
 
@@ -358,10 +369,6 @@ public class MainWindow extends Application {
         inputsGridPane.add(saveOperationCostTextField, 2, 17);
     }
 
-    private static GridPane inputsGridPane = new GridPane();
-    private static Button runSimulationBtn;
-    public static Button showResultsBtn;
-
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
         inputsGridPane.setVisible(isVisible);
     }
@@ -372,6 +379,10 @@ public class MainWindow extends Application {
 
     public static void setShowResultsBtnDisable(boolean isDisabled) {
         showResultsBtn.setDisable(isDisabled);
+    }
+
+    public static void setSaveAsBtnDisable(boolean isDisabled) {
+        saveAsBtn.setDisable(isDisabled);
     }
 
     public static void runSimulation() {
@@ -494,17 +505,38 @@ public class MainWindow extends Application {
         currentSettings = new Settings();
 
         // GridPane for inputs
-
         inputsGridPane.setVisible(false);
         inputsGridPane.setHgap(5);
         inputsGridPane.setVgap(5);
 
+        // run simulation Btn
         runSimulationBtn = new Button();
-        showResultsBtn = new Button();
+        ImageView runSimulationImage = new ImageView(RUN_MODELING);
+        runSimulationBtn.setGraphic(runSimulationImage);
+        runSimulationBtn.setDisable(true);
 
-        // New Experiment Button
+        // show results Btn
+        showResultsBtn = new Button();
+        ImageView showResultsBtnImg = new ImageView(VIEW_PLOTS);
+        showResultsBtn.setGraphic(showResultsBtnImg);
+        showResultsBtn.setDisable(true);
+
+        // new experiment Btn
         ImageView newBtnImage = new ImageView(NEW_BTN);
-        Button newExperimentBtn = new Button();
+        newExperimentBtn = new Button();
+        newExperimentBtn.setGraphic(newBtnImage);
+
+        // show results button
+        settingsBtn = new Button();
+        ImageView settingsBtnImg = new ImageView(SETTINGS);
+        settingsBtn.setGraphic(settingsBtnImg);
+
+        // saveAs experiment Button
+        saveAsBtn = new Button();
+        ImageView saveAsBtnImg = new ImageView(SAVE_AS);
+        saveAsBtn.setGraphic(saveAsBtnImg);
+        saveAsBtn.setDisable(true);
+
 
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
@@ -528,13 +560,42 @@ public class MainWindow extends Application {
             }
         });
 
-        newExperimentBtn.setGraphic(newBtnImage);
+        saveAsBtn.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            //Set extension filter
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+            fileChooser.getExtensionFilters().add(extFilter);
 
-        // Run Simulation Button
-        ImageView runSimulationImage = new ImageView(RUN_MODELING);
+            fileChooser.setTitle("Зберегти експеремент: ");
+            File file = fileChooser.showSaveDialog(primaryStage);
 
+            if(file != null) {
+                if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                    int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
+                    int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
+                    int matrixSizeIncrement = Integer.parseInt(matrixSizeIncrementTextField.getText());
+                    int blockSize = Integer.parseInt(blockSizeTextField.getText());
+                    int numberOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                    int numberOfGpu = Integer.parseInt(numberOfGpuTextField.getText());
+                    int rankOfCpu = Integer.parseInt(numberOfCpuTextField.getText());
+                    int rankOfGpu = Integer.parseInt(rankOfGpuTextField.getText());
+                    double resourceCapacity = Double.parseDouble(resourceCapacityTextField.getText());
+                    double linkCapacity = Double.parseDouble(linkCapacityTextField.getText());
+                    double loadOperationCost = Double.parseDouble(loadOperationCostTextField.getText());
+                    double saveOperationCost = Double.parseDouble(saveOperationCostTextField.getText());
 
-        runSimulationBtn.setDisable(true);
+                    matrixMultiplyExperiment = new MatrixMultiplyExperiment(minMatrixSize,
+                            maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
+                            rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
+
+                    matrixMultiplyExperiment.saveExperiment(file, matrixMultiplyExperiment);
+                } else if (runningExperiment == Experiment.NBODY) {
+
+                }
+
+            }
+
+        });
 
         runSimulationBtn.setOnAction(actionEvent -> {
 
@@ -543,25 +604,12 @@ public class MainWindow extends Application {
             simulationProgressStage.setScene(ProgressWindow.getProgressWindowScene());
             simulationProgressStage.setResizable(false);
             simulationProgressStage.show();
-
-
         });
 
-        runSimulationBtn.setGraphic(runSimulationImage);
-
-        // Show results of simulation
-        ImageView showResultsBtnImg = new ImageView(VIEW_PLOTS);
-        showResultsBtn.setDisable(true);
-
-        showResultsBtn.setGraphic(showResultsBtnImg);
         showResultsBtn.setOnAction(actionEvent -> {
             showResults();
         });
 
-        // Show settings of simulation
-        Button settingsBtn = new Button();
-        ImageView settingsBtnImg = new ImageView(SETTINGS);
-        settingsBtn.setGraphic(settingsBtnImg);
         settingsBtn.setOnAction(actionEvent -> {
 
             Stage settingsStage = new Stage();
@@ -574,7 +622,7 @@ public class MainWindow extends Application {
 
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
-        buttonsHBox.getChildren().addAll(newExperimentBtn, runSimulationBtn, showResultsBtn, settingsBtn);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, saveAsBtn,runSimulationBtn, showResultsBtn, settingsBtn);
         buttonsHBox.setAlignment(Pos.TOP_LEFT);
 
         GridPane masterGridPane = new GridPane();
@@ -609,7 +657,7 @@ public class MainWindow extends Application {
                     timeNGraphicMap.put(i, "Time(TPB); N = " + i);
                 }
 
-                for (int i = nBodyExperiment.getMinTPB(); i <= nBodyExperiment.getMaxTPB(); i*=2) {
+                for (int i = nBodyExperiment.getMinTPB(); i <= nBodyExperiment.getMaxTPB(); i *= 2) {
                     timeTPBGraphicMap.put(i, "Time(N); TPB = " + i);
                 }
 
@@ -642,8 +690,7 @@ public class MainWindow extends Application {
                 if (currentSettings.getIsDistributedSimulation()) {
 
                 } else {
-                    if (((String)cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(pattern.toLowerCase()))
-                    {
+                    if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(pattern.toLowerCase())) {
                         nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
                     } else {
                         nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB());
@@ -655,19 +702,18 @@ public class MainWindow extends Application {
                             Integer key = null;
 
 
-
-                            if (((String)new_value).toLowerCase().contains(pattern.toLowerCase())) {
-                                for(Map.Entry entry: timeNGraphicMap.entrySet()){
-                                    if(new_value.equals(entry.getValue())){
-                                        key = (Integer)entry.getKey();
+                            if (((String) new_value).toLowerCase().contains(pattern.toLowerCase())) {
+                                for (Map.Entry entry : timeNGraphicMap.entrySet()) {
+                                    if (new_value.equals(entry.getValue())) {
+                                        key = (Integer) entry.getKey();
                                         break; //breaking because its one to one map
                                     }
                                 }
                                 nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
                             } else {
-                                for(Map.Entry entry: timeTPBGraphicMap.entrySet()){
-                                    if(new_value.equals(entry.getValue())){
-                                        key = (Integer)entry.getKey();
+                                for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
+                                    if (new_value.equals(entry.getValue())) {
+                                        key = (Integer) entry.getKey();
                                         break; //breaking because its one to one map
                                     }
                                 }
@@ -697,7 +743,9 @@ public class MainWindow extends Application {
 
         resultsStage.show();
     }
+
     private static AreaChart<Number, Number> nBodyChart;
+
     public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);
         numberOfCpuTextField.setVisible(isVisible);

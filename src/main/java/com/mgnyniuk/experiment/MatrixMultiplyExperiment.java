@@ -6,8 +6,10 @@ import com.gpusim2.config.GridSimMachineConfig;
 import com.gpusim2.config.GridSimResourceConfig;
 
 import java.beans.XMLEncoder;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.Map;
 /**
  * Created by maksym on 4/28/14.
  */
-public class MatrixMultiplyExperiment {
+public class MatrixMultiplyExperiment implements Serializable {
 
     private Integer minMatrixSize;
     private Integer maxMatrixSize;
@@ -161,6 +163,20 @@ public class MatrixMultiplyExperiment {
             GridSimConfig gridSimConfig = createSimulationConfig(blockSizeList.get(i), matrixSizeList.get(i));
             configMap.put(i, gridSimConfig);
         }
+    }
+
+    public void saveExperiment(File file, MatrixMultiplyExperiment matrixMultiplyExperiment) {
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            XMLEncoder xmlEncoder = new XMLEncoder(out);
+            xmlEncoder.writeObject(matrixMultiplyExperiment);
+            xmlEncoder.flush();
+            xmlEncoder.close();
+        } catch (FileNotFoundException ex) {
+
+        }
+
     }
 
     public Integer getMinMatrixSize() {
