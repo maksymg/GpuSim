@@ -600,13 +600,17 @@ public class MainWindow extends Application {
                 }
             } else if (runningExperiment == Experiment.NBODY) {
 
-                Map<String, Integer> timeTPBGraphicMap = new HashMap<>();
+                Map<Integer, String> timeTPBGraphicMap = new HashMap<>();
                 Map<Integer, String> timeNGraphicMap = new HashMap<>();
 
                 // counter
 
                 for (int i = nBodyExperiment.getMinN(); i <= nBodyExperiment.getMaxN(); i *= 2) {
                     timeNGraphicMap.put(i, "Time(TPB); N = " + i);
+                }
+
+                for (int i = nBodyExperiment.getMinTPB(); i <= nBodyExperiment.getMaxTPB(); i*=2) {
+                    timeTPBGraphicMap.put(i, "Time(N); TPB = " + i);
                 }
 
                 GridPane gridPane = new GridPane();
@@ -624,32 +628,51 @@ public class MainWindow extends Application {
                     cb.getItems().add(entry.getValue());
                 }
 
+                for (Map.Entry<Integer, String> entry : timeTPBGraphicMap.entrySet()) {
+                    cb.getItems().add(entry.getValue());
+                }
+
                 //cb.getItems().addAll("Dog", "Cat", "Horse");
                 cb.getSelectionModel().selectFirst();
 
                 GridPane.setConstraints(cb, 0, 0);
                 GridPane.setMargin(cb, new Insets(10, 10, 10, 10));
                 GridPane.setHalignment(cb, HPos.LEFT);
-
+                String pattern = "Time(TPB);";
                 if (currentSettings.getIsDistributedSimulation()) {
 
                 } else {
-
-                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                    if (((String)cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(pattern.toLowerCase()))
+                    {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                    } else {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB());
+                    }
                     cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
                         @Override
                         public void changed(ObservableValue observableValue, Object o, Object new_value) {
                             gridPane.getChildren().clear();
                             Integer key = null;
 
-                            for(Map.Entry entry: timeNGraphicMap.entrySet()){
-                                if(new_value.equals(entry.getValue())){
-                                    key = (Integer)entry.getKey();
-                                    break; //breaking because its one to one map
-                                }
-                            }
 
-                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+
+                            if (((String)new_value).toLowerCase().contains(pattern.toLowerCase())) {
+                                for(Map.Entry entry: timeNGraphicMap.entrySet()){
+                                    if(new_value.equals(entry.getValue())){
+                                        key = (Integer)entry.getKey();
+                                        break; //breaking because its one to one map
+                                    }
+                                }
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+                            } else {
+                                for(Map.Entry entry: timeTPBGraphicMap.entrySet()){
+                                    if(new_value.equals(entry.getValue())){
+                                        key = (Integer)entry.getKey();
+                                        break; //breaking because its one to one map
+                                    }
+                                }
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key);
+                            }
 
                             GridPane.setConstraints(nBodyChart, 0, 1);
                             GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));

@@ -116,4 +116,47 @@ public class GenerateChart {
 
         return ac;
     }
+
+    public static AreaChart<Number, Number> getResultChartForNBodyExperimentNToTime(Map<Integer, GridSimConfig> configMap,
+                                                                                      Map<Integer, GridSimOutput> outputMap, int TPB) {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
+
+        // setup chart
+        ac.setTitle("Simulation Result");
+        xAxis.setLabel("N");
+        yAxis.setLabel("Time[ms]");
+
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series.setName("Time[ms]/N");
+
+        List<Integer> configNumberWithFoundTPBParameterList = new ArrayList<>();
+        List<Integer> NForFoundTPBList = new ArrayList<>();
+        List<Double> timeList = new ArrayList<>();
+
+        for (int i = 0; i < configMap.size(); i++) {
+
+            // GridSimGridletConfig and GridSimGridletResource are in a single copy
+            GridSimGridletConfig gridSimGridletConfig = configMap.get(i).getGridlets().get(0);
+            GridSimResourceConfig gridSimResourceConfig = configMap.get(i).getResources().get(0);
+
+            if (gridSimResourceConfig.getCount() == TPB) {
+                configNumberWithFoundTPBParameterList.add(i);
+                NForFoundTPBList.add(gridSimGridletConfig.getCount());
+            }
+        }
+
+        for (Integer index : configNumberWithFoundTPBParameterList) {
+            timeList.add(outputMap.get(index).getTotalSimulationTime());
+        }
+
+        for (int i = 0; i < configNumberWithFoundTPBParameterList.size(); i++) {
+            series.getData().add(new XYChart.Data<>(NForFoundTPBList.get(i), timeList.get(i)));
+        }
+
+        ac.getData().add(series);
+
+        return ac;
+    }
 }
