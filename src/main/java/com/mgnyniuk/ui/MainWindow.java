@@ -54,6 +54,7 @@ public class MainWindow extends Application {
     private static final Image RUN_MODELING = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_runModeling.png"));
     private static final Image VIEW_PLOTS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_viewPlots.png"));
     private static final Image SETTINGS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_settings.png"));
+    private static final Image OPEN = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_open.png"));
     private static final Image SAVE_AS = new Image(MainWindow.class.getResourceAsStream("/pictures/btn_saveAs.png"));
 
     private static GridPane inputsGridPane = new GridPane();
@@ -62,6 +63,7 @@ public class MainWindow extends Application {
     private static Button newExperimentBtn;
     private static Button settingsBtn;
     private static Button saveAsBtn;
+    private static Button openExperimentBtn;
 
     // Hazelcast distributed maps
     public static Map<Integer, GridSimConfig> configMap;
@@ -537,6 +539,11 @@ public class MainWindow extends Application {
         saveAsBtn.setGraphic(saveAsBtnImg);
         saveAsBtn.setDisable(true);
 
+        // open experiment Button
+        openExperimentBtn = new Button();
+        ImageView openExperimentBtnImg = new ImageView(OPEN);
+        openExperimentBtn.setGraphic(openExperimentBtnImg);
+        openExperimentBtn.setDisable(false);
 
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
@@ -637,10 +644,9 @@ public class MainWindow extends Application {
             settingsStage.show();
         });
 
-
         // HBox with spacing 5
         HBox buttonsHBox = new HBox(5);
-        buttonsHBox.getChildren().addAll(newExperimentBtn, saveAsBtn,runSimulationBtn, showResultsBtn, settingsBtn);
+        buttonsHBox.getChildren().addAll(newExperimentBtn, openExperimentBtn, saveAsBtn, runSimulationBtn, showResultsBtn, settingsBtn);
         buttonsHBox.setAlignment(Pos.TOP_LEFT);
 
         GridPane masterGridPane = new GridPane();
