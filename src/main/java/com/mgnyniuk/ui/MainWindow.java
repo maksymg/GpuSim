@@ -591,6 +591,24 @@ public class MainWindow extends Application {
                     matrixMultiplyExperiment.saveExperiment(file, matrixMultiplyExperiment);
                 } else if (runningExperiment == Experiment.NBODY) {
 
+                    int minN = Integer.parseInt(minNTextField.getText());
+                    int maxN = Integer.parseInt(maxNTextField.getText());
+                    int minTPB = Integer.parseInt(minTPBTextField.getText());
+                    int maxTPB = Integer.parseInt(maxTPBTextField.getText());
+
+                    int gpuCoreRating = Integer.parseInt(gpuCoreRatingTextField.getText());
+                    int limitationDivider = Integer.parseInt(limitationsDividerTextField.getText());
+                    double smallTPBPenaltyWeight = Double.parseDouble(smallTPBPenaltyWeightTextField.getText());
+                    double largeTPBPenaltyWeight = Double.parseDouble(largeTPBPenaltyWeightTextField.getText());
+                    double multiplicativeLengthScaleFactor = Double.parseDouble(multiplicativeLengthScaleFactorTextField.getText());
+                    double additiveLengthScaleFactor = Double.parseDouble(additiveLengthScaleFactorTextField.getText());
+
+                    nBodyExperiment = new NBodyExperiment(minN, maxN, minTPB, maxTPB, gpuCoreRating,
+                            limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
+                            additiveLengthScaleFactor);
+
+                    nBodyExperiment.saveExperiment(file, nBodyExperiment);
+
                 }
 
             }

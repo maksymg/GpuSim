@@ -7,6 +7,7 @@ import com.gpusim2.config.GridSimResourceConfig;
 import com.mgnyniuk.util.Calc;
 
 import java.beans.XMLEncoder;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -140,6 +141,24 @@ public class NBodyExperiment {
         gridSimGridletConfig.setCount(count.intValue());
 
         return gridSimGridletConfig;
+    }
+
+    public void saveExperiment(File file, NBodyExperiment nBodyExperiment) {
+
+        try {
+            NBodyExperimentPOJO nBodyExperimentPOJO = new NBodyExperimentPOJO(nBodyExperiment.getMinN(), nBodyExperiment.getMaxN(),
+                    nBodyExperiment.getMinTPB(), nBodyExperiment.getMaxTPB(), nBodyExperiment.getGpuCoreRating(), nBodyExperiment.getLimitationDivider(),
+                    nBodyExperiment.getSmallTPBPenaltyWeight(), nBodyExperiment.getLargeTPBPenaltyWeight(), nBodyExperiment.getMultiplicativeLengthScaleFactor(),
+                    nBodyExperiment.getAdditiveLengthScaleFactor());
+
+            FileOutputStream out = new FileOutputStream(file);
+            XMLEncoder xmlEncoder = new XMLEncoder(out);
+            xmlEncoder.writeObject(nBodyExperimentPOJO);
+            xmlEncoder.flush();
+            xmlEncoder.close();
+        } catch (FileNotFoundException ex) {
+
+        }
     }
 
     public Integer getMinN() {

@@ -81,7 +81,7 @@ public class MatrixMultiplyExperiment implements Serializable {
     }
 
     private void initBlockAndMatrixSizeLists(int maxMatrixSize, int matrixSizeIncrement, int blockSize) {
-        for (int i=1; i <= maxMatrixSize / matrixSizeIncrement; i++) {
+        for (int i = 1; i <= maxMatrixSize / matrixSizeIncrement; i++) {
             blockSizeList.add(blockSize);
             matrixSizeList.add(matrixSizeIncrement * i);
 
@@ -168,15 +168,21 @@ public class MatrixMultiplyExperiment implements Serializable {
     public void saveExperiment(File file, MatrixMultiplyExperiment matrixMultiplyExperiment) {
 
         try {
+            MatrixMultiplyExperimentPOJO matrixMultiplyExperimentPOJO = new MatrixMultiplyExperimentPOJO(matrixMultiplyExperiment.getMinMatrixSize(),
+                    matrixMultiplyExperiment.getMaxMatrixSize(), matrixMultiplyExperiment.getMatrixSizeIncrement(), matrixMultiplyExperiment.getBlockSize(),
+                    matrixMultiplyExperiment.getNumberOfCpu(), matrixMultiplyExperiment.getRankOfCpu(), matrixMultiplyExperiment.getNumberOfGpu(),
+                    matrixMultiplyExperiment.getRankOfGpu(), matrixMultiplyExperiment.getResourceCapacity(), matrixMultiplyExperiment.getLinkCapacity(),
+                    matrixMultiplyExperiment.getLoadOperationCost(), matrixMultiplyExperiment.getSaveOperationCost(), matrixMultiplyExperiment.getBlockSizeList(),
+                    matrixMultiplyExperiment.getMatrixSizeList());
+
             FileOutputStream out = new FileOutputStream(file);
             XMLEncoder xmlEncoder = new XMLEncoder(out);
-            xmlEncoder.writeObject(matrixMultiplyExperiment);
+            xmlEncoder.writeObject(matrixMultiplyExperimentPOJO);
             xmlEncoder.flush();
             xmlEncoder.close();
         } catch (FileNotFoundException ex) {
 
         }
-
     }
 
     public Integer getMinMatrixSize() {
