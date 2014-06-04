@@ -635,17 +635,18 @@ public class MainWindow extends Application {
 
             //Show open file dialog
             File file = fileChooser.showOpenDialog(null);
-
-            if (runningExperiment == Experiment.MATRIXMULTIPLY) {
-                matrixMultiplyExperiment = MatrixMultiplyExperiment.loadExperiment(file);
-                prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
-                setInputsGridPaneVisiblity(true);
-                setVisibleModelingParameterBlockForMatrixMultiply(false);
-            } else if (runningExperiment == Experiment.NBODY) {
-                nBodyExperiment = NBodyExperiment.loadExperiment(file);
-                prepareFieldsForNBodyExperiment(nBodyExperiment);
-                setInputsGridPaneVisiblity(true);
-                setVisibleModelingParameterBlockForNBody(false);
+            if (file != null) {
+                if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                    matrixMultiplyExperiment = MatrixMultiplyExperiment.loadExperiment(file);
+                    prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
+                    setInputsGridPaneVisiblity(true);
+                    setVisibleModelingParameterBlockForMatrixMultiply(false);
+                } else if (runningExperiment == Experiment.NBODY) {
+                    nBodyExperiment = NBodyExperiment.loadExperiment(file);
+                    prepareFieldsForNBodyExperiment(nBodyExperiment);
+                    setInputsGridPaneVisiblity(true);
+                    setVisibleModelingParameterBlockForNBody(false);
+                }
             }
         });
 
