@@ -387,6 +387,10 @@ public class MainWindow extends Application {
         saveAsBtn.setDisable(isDisabled);
     }
 
+    public static void setOpenExperimentBtnDisable(boolean isDisabled) {
+        openExperimentBtn.setDisable(isDisabled);
+    }
+
     public static void runSimulation() {
 
         if (runningExperiment == Experiment.MATRIXMULTIPLY) {
@@ -543,7 +547,7 @@ public class MainWindow extends Application {
         openExperimentBtn = new Button();
         ImageView openExperimentBtnImg = new ImageView(OPEN);
         openExperimentBtn.setGraphic(openExperimentBtnImg);
-        openExperimentBtn.setDisable(false);
+        openExperimentBtn.setDisable(true);
 
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
@@ -570,7 +574,7 @@ public class MainWindow extends Application {
         saveAsBtn.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             //Set extension filter
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("GSE files (*.gse)", "*.gse");
             fileChooser.getExtensionFilters().add(extFilter);
 
             fileChooser.setTitle("Зберегти експеремент: ");
@@ -595,7 +599,7 @@ public class MainWindow extends Application {
                             maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                             rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
 
-                    matrixMultiplyExperiment.saveExperiment(file, matrixMultiplyExperiment);
+                    MatrixMultiplyExperiment.saveExperiment(file, matrixMultiplyExperiment);
                 } else if (runningExperiment == Experiment.NBODY) {
 
                     int minN = Integer.parseInt(minNTextField.getText());
@@ -614,12 +618,35 @@ public class MainWindow extends Application {
                             limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
                             additiveLengthScaleFactor);
 
-                    nBodyExperiment.saveExperiment(file, nBodyExperiment);
+                    NBodyExperiment.saveExperiment(file, nBodyExperiment);
 
                 }
 
             }
 
+        });
+
+        openExperimentBtn.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+
+            //Set extension filter
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("GSE files (*.gse)", "*.gse");
+            fileChooser.getExtensionFilters().addAll(extFilter);
+
+            //Show open file dialog
+            File file = fileChooser.showOpenDialog(null);
+
+            if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                matrixMultiplyExperiment = MatrixMultiplyExperiment.loadExperiment(file);
+                prepareFieldsForMatrixMultiplyExperiment(matrixMultiplyExperiment);
+                setInputsGridPaneVisiblity(true);
+                setVisibleModelingParameterBlockForMatrixMultiply(false);
+            } else if (runningExperiment == Experiment.NBODY) {
+                nBodyExperiment = NBodyExperiment.loadExperiment(file);
+                prepareFieldsForNBodyExperiment(nBodyExperiment);
+                setInputsGridPaneVisiblity(true);
+                setVisibleModelingParameterBlockForNBody(false);
+            }
         });
 
         runSimulationBtn.setOnAction(actionEvent -> {

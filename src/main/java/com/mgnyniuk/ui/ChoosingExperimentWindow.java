@@ -78,6 +78,7 @@ public class ChoosingExperimentWindow {
                 MainWindow.setVisibleModelingParameterBlockForMatrixMultiply(false);
                 MainWindow.setRunSimulationBtnDisable(false);
                 MainWindow.setSaveAsBtnDisable(false);
+                MainWindow.setOpenExperimentBtnDisable(false);
             } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
 
                 // set running Experiment
@@ -90,6 +91,7 @@ public class ChoosingExperimentWindow {
                 MainWindow.setVisibleModelingParameterBlockForNBody(false);
                 MainWindow.setRunSimulationBtnDisable(false);
                 MainWindow.setSaveAsBtnDisable(false);
+                MainWindow.setOpenExperimentBtnDisable(false);
             }
 
             parentStage.close();

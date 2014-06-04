@@ -6,8 +6,10 @@ import com.gpusim2.config.GridSimMachineConfig;
 import com.gpusim2.config.GridSimResourceConfig;
 import com.mgnyniuk.util.Calc;
 
+import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -143,7 +145,7 @@ public class NBodyExperiment {
         return gridSimGridletConfig;
     }
 
-    public void saveExperiment(File file, NBodyExperiment nBodyExperiment) {
+    public static void saveExperiment(File file, NBodyExperiment nBodyExperiment) {
 
         try {
             NBodyExperimentPOJO nBodyExperimentPOJO = new NBodyExperimentPOJO(nBodyExperiment.getMinN(), nBodyExperiment.getMaxN(),
@@ -158,6 +160,28 @@ public class NBodyExperiment {
             xmlEncoder.close();
         } catch (FileNotFoundException ex) {
 
+        }
+    }
+
+    public static NBodyExperiment loadExperiment(File file) {
+
+        NBodyExperiment nBodyExperiment = null;
+
+        try {
+            FileInputStream in = new FileInputStream(file);
+            XMLDecoder xmlDecoder = new XMLDecoder(in);
+            NBodyExperimentPOJO NBodyExperimentPOJO = (NBodyExperimentPOJO) xmlDecoder.readObject();
+            xmlDecoder.close();
+
+            nBodyExperiment = new NBodyExperiment(nBodyExperiment.getMinN(), nBodyExperiment.getMaxN(), nBodyExperiment.getMinTPB(),
+                    nBodyExperiment.getMaxTPB(), nBodyExperiment.getGpuCoreRating(), nBodyExperiment.getLimitationDivider(), nBodyExperiment.getSmallTPBPenaltyWeight(),
+                    nBodyExperiment.getLargeTPBPenaltyWeight(), nBodyExperiment.getMultiplicativeLengthScaleFactor(), nBodyExperiment.getAdditiveLengthScaleFactor());
+
+        } catch (FileNotFoundException ex) {
+
+        }
+        finally {
+            return nBodyExperiment;
         }
     }
 

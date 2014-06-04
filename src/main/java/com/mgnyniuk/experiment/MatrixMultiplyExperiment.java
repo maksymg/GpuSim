@@ -5,11 +5,9 @@ import com.gpusim2.config.GridSimGridletConfig;
 import com.gpusim2.config.GridSimMachineConfig;
 import com.gpusim2.config.GridSimResourceConfig;
 
+import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +76,28 @@ public class MatrixMultiplyExperiment implements Serializable {
         this.matrixSizeList = new ArrayList<>();
 
         initBlockAndMatrixSizeLists(maxMatrixSize, matrixSizeIncrement, blockSize);
+    }
+
+    public MatrixMultiplyExperiment(Integer minMatrixSize, Integer maxMatrixSize, Integer matrixSizeIncrement, Integer blockSize,
+                                    Integer numberOfCpu, Integer rankOfCpu, Integer numberOfGpu, Integer rankOfGpu,
+                                    Double resourceCapacity, Double linkCapacity, Double loadOperationCost, Double saveOperationCost,
+                                    List<Integer> blockSizeList, List<Integer> matrixSizeList) {
+
+        this.minMatrixSize = minMatrixSize;
+        this.maxMatrixSize = maxMatrixSize;
+        this.matrixSizeIncrement = matrixSizeIncrement;
+        this.blockSize = blockSize;
+        this.numberOfCpu = numberOfCpu;
+        this.rankOfCpu = rankOfCpu;
+        this.numberOfGpu = numberOfGpu;
+        this.rankOfGpu = rankOfGpu;
+        this.resourceCapacity = resourceCapacity;
+        this.linkCapacity = linkCapacity;
+        this.loadOperationCost = loadOperationCost;
+        this.saveOperationCost = saveOperationCost;
+
+        this.blockSizeList = blockSizeList;
+        this.matrixSizeList = matrixSizeList;
     }
 
     private void initBlockAndMatrixSizeLists(int maxMatrixSize, int matrixSizeIncrement, int blockSize) {
@@ -165,7 +185,7 @@ public class MatrixMultiplyExperiment implements Serializable {
         }
     }
 
-    public void saveExperiment(File file, MatrixMultiplyExperiment matrixMultiplyExperiment) {
+    public static void saveExperiment(File file, MatrixMultiplyExperiment matrixMultiplyExperiment) {
 
         try {
             MatrixMultiplyExperimentPOJO matrixMultiplyExperimentPOJO = new MatrixMultiplyExperimentPOJO(matrixMultiplyExperiment.getMinMatrixSize(),
@@ -182,6 +202,29 @@ public class MatrixMultiplyExperiment implements Serializable {
             xmlEncoder.close();
         } catch (FileNotFoundException ex) {
 
+        }
+    }
+
+    public static MatrixMultiplyExperiment loadExperiment(File file) {
+
+        MatrixMultiplyExperiment matrixMultiplyExperiment = null;
+
+        try {
+            FileInputStream in = new FileInputStream(file);
+            XMLDecoder xmlDecoder = new XMLDecoder(in);
+            MatrixMultiplyExperimentPOJO matrixMultiplyExperimentPOJO = (MatrixMultiplyExperimentPOJO) xmlDecoder.readObject();
+            xmlDecoder.close();
+
+            matrixMultiplyExperiment = new MatrixMultiplyExperiment(matrixMultiplyExperimentPOJO.getMinMatrixSize(), matrixMultiplyExperimentPOJO.getMaxMatrixSize(),
+                    matrixMultiplyExperimentPOJO.getMatrixSizeIncrement(), matrixMultiplyExperimentPOJO.getBlockSize(), matrixMultiplyExperimentPOJO.getNumberOfCpu(),
+                    matrixMultiplyExperimentPOJO.getRankOfCpu(), matrixMultiplyExperimentPOJO.getNumberOfGpu(), matrixMultiplyExperimentPOJO.getRankOfGpu(),
+                    matrixMultiplyExperimentPOJO.getResourceCapacity(), matrixMultiplyExperimentPOJO.getLinkCapacity(), matrixMultiplyExperimentPOJO.getLoadOperationCost(),
+                    matrixMultiplyExperimentPOJO.getSaveOperationCost(), matrixMultiplyExperimentPOJO.getBlockSizeList(), matrixMultiplyExperimentPOJO.getMatrixSizeList());
+        } catch (FileNotFoundException ex) {
+
+        }
+        finally {
+            return matrixMultiplyExperiment;
         }
     }
 
