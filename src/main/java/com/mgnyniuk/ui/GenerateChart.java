@@ -6,6 +6,7 @@ import com.gpusim2.config.GridSimOutput;
 import com.gpusim2.config.GridSimResourceConfig;
 import com.mgnyniuk.core.ConfigurationUtil;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
@@ -19,12 +20,12 @@ import java.util.Map;
  */
 public class GenerateChart {
 
-    public static AreaChart<Number, Number> getResultChartForMatrixMultiplyExperiment(int outputStartIndex,
+    public static LineChart<Number, Number> getResultChartForMatrixMultiplyExperiment(int outputStartIndex,
                                                                                       int outputEndIndex,
                                                                                       List<Integer> matrixSizeList) throws FileNotFoundException {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
-        AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
 
         // setup chart
         ac.setTitle("Simulation Result");
