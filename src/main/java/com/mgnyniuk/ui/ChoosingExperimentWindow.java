@@ -1,8 +1,6 @@
 package com.mgnyniuk.ui;
 
-import com.mgnyniuk.experiment.Experiment;
-import com.mgnyniuk.experiment.MatrixMultiplyExperiment;
-import com.mgnyniuk.experiment.NBodyExperiment;
+import com.mgnyniuk.experiment.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
@@ -54,19 +52,19 @@ public class ChoosingExperimentWindow {
         experimentsTg.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> observableValue, Toggle toggle, Toggle toggle2) {
-                    if (experimentsTg.getSelectedToggle() != null) {
-                            if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
-                                System.out.println(Experiment.MATRIXMULTIPLY.getValue());
-                            } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
-                                System.out.println(Experiment.NBODY.getValue());
-                            }
+                if (experimentsTg.getSelectedToggle() != null) {
+                    if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
+                        System.out.println(Experiment.MATRIXMULTIPLY.getValue());
+                    } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
+                        System.out.println(Experiment.NBODY.getValue());
                     }
+                }
             }
         });
 
         Button okButton = new Button("Ок");
         okButton.setOnAction(actionEvent -> {
-            Stage parentStage = (Stage)okButton.getScene().getWindow();
+            Stage parentStage = (Stage) okButton.getScene().getWindow();
             if (experimentsTg.getSelectedToggle().getUserData() == Experiment.MATRIXMULTIPLY) {
                 // set running Experiment
                 MainWindow.runningExperiment = Experiment.MATRIXMULTIPLY;
@@ -80,7 +78,6 @@ public class ChoosingExperimentWindow {
                 MainWindow.setSaveAsBtnDisable(false);
                 MainWindow.setOpenExperimentBtnDisable(false);
             } else if (experimentsTg.getSelectedToggle().getUserData() == Experiment.NBODY) {
-
                 // set running Experiment
                 MainWindow.runningExperiment = Experiment.NBODY;
 
@@ -98,7 +95,7 @@ public class ChoosingExperimentWindow {
         });
         Button cancelButton = new Button("Скасувати");
         cancelButton.setOnAction(actionEvent -> {
-            Stage parentStage = (Stage)cancelButton.getScene().getWindow();
+            Stage parentStage = (Stage) cancelButton.getScene().getWindow();
             parentStage.close();
         });
 
