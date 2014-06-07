@@ -417,7 +417,9 @@ public class MainWindow extends Application {
         openExperimentBtn.setDisable(isDisabled);
     }
 
-    public static void setOpenCalibrationFileBtnDisable(boolean isDisabled) { openCalibrationFileBtn.setDisable(isDisabled); }
+    public static void setOpenCalibrationFileBtnDisable(boolean isDisabled) {
+        openCalibrationFileBtn.setDisable(isDisabled);
+    }
 
     public static void runSimulation() {
 
@@ -616,7 +618,7 @@ public class MainWindow extends Application {
             fileChooser.setTitle("Зберегти експеремент: ");
             File file = fileChooser.showSaveDialog(primaryStage);
 
-            if(file != null) {
+            if (file != null) {
                 if (runningExperiment == Experiment.MATRIXMULTIPLY) {
                     int minMatrixSize = Integer.parseInt(minMatrixSizeTextField.getText());
                     int maxMatrixSize = Integer.parseInt(maxMatrixSizeTextField.getText());
@@ -751,7 +753,13 @@ public class MainWindow extends Application {
                     resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(outputMap, matrixMultiplyExperiment.getMatrixSizeList()));
 
                 } else {
-                    resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                    if (isCalibrationFileUsing) {
+                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperimentAndCalibrationExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
+                                matrixMultiplyExperimentCalibration.getMatrixSizeList(), matrixMultiplyExperimentCalibration.getSimulationTimeList()));
+
+                    } else {
+                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
+                    }
                 }
             } else if (runningExperiment == Experiment.NBODY) {
 

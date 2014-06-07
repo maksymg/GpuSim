@@ -38,11 +38,48 @@ public class GenerateChart {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Time/Matrix Size");
 
-        for (int i = 0; i < matrixSizeList.size() - 1; i++) {
+        for (int i = 0; i < matrixSizeList.size(); i++) {
             series.getData().add(new XYChart.Data<Number, Number>(matrixSizeList.get(i), outputList.get(i).getTotalSimulationTime()));
         }
 
         ac.getData().add(series);
+        ac.setCreateSymbols(false);
+
+        return ac;
+    }
+
+    public static LineChart<Number, Number> getResultChartForMatrixMultiplyExperimentAndCalibrationExperiment(int outputStartIndex,
+                                                                                                              int outputEndIndex,
+                                                                                                              List<Integer> mmExperimentMatrixSizeList, List<Integer> mmCalibrationExperimentMatrixSizeList,
+                                                                                                              List<Double> mmCalibrationExperimentSimulationTimeList) throws FileNotFoundException {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
+
+        // setup chart
+        ac.setTitle("Simulation Result");
+        xAxis.setLabel("Matrix size");
+        yAxis.setLabel("Time");
+
+        // output list
+        List<GridSimOutput> outputList = ConfigurationUtil.loadOutputs(outputStartIndex, outputEndIndex);
+
+        LineChart.Series<Number, Number> modelSeries = new LineChart.Series<>();
+        modelSeries.setName("Model");
+
+
+        LineChart.Series<Number, Number> realParallelSystemSeries = new LineChart.Series<>();
+        realParallelSystemSeries.setName("Real Parallel System");
+
+        for (int i = 0; i < mmExperimentMatrixSizeList.size(); i++) {
+            modelSeries.getData().add(new LineChart.Data<>(mmExperimentMatrixSizeList.get(i), outputList.get(i).getTotalSimulationTime()));
+        }
+
+        for (int i = 0; i < mmCalibrationExperimentMatrixSizeList.size(); i++) {
+            realParallelSystemSeries.getData().add(new LineChart.Data<>(mmCalibrationExperimentMatrixSizeList.get(i), mmCalibrationExperimentSimulationTimeList.get(i)));
+        }
+
+        ac.getData().addAll(modelSeries, realParallelSystemSeries);
         ac.setCreateSymbols(false);
 
         return ac;
@@ -71,7 +108,7 @@ public class GenerateChart {
     }
 
     public static AreaChart<Number, Number> getResultChartForNBodyExperimentTPBToTime(Map<Integer, GridSimConfig> configMap,
-                                                                                    Map<Integer, GridSimOutput> outputMap, int N) {
+                                                                                      Map<Integer, GridSimOutput> outputMap, int N) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
@@ -115,7 +152,7 @@ public class GenerateChart {
     }
 
     public static AreaChart<Number, Number> getResultChartForNBodyExperimentNToTime(Map<Integer, GridSimConfig> configMap,
-                                                                                      Map<Integer, GridSimOutput> outputMap, int TPB) {
+                                                                                    Map<Integer, GridSimOutput> outputMap, int TPB) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
