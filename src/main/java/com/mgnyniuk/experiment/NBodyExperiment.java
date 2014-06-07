@@ -185,6 +185,21 @@ public class NBodyExperiment {
         }
     }
 
+    public static NBodyExperimentCalibration loadExperimentCalibration(File file) {
+        NBodyExperimentCalibration nBodyExperimentCalibration = null;
+
+        try {
+            FileInputStream in = new FileInputStream(file);
+            XMLDecoder xmlDecoder = new XMLDecoder(in);
+            nBodyExperimentCalibration = (NBodyExperimentCalibration) xmlDecoder.readObject();
+            xmlDecoder.close();
+        } catch (FileNotFoundException ex) {
+
+        } finally {
+            return nBodyExperimentCalibration;
+        }
+    }
+
     public Integer getMinN() {
         return minN;
     }

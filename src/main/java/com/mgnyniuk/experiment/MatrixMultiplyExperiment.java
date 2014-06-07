@@ -228,6 +228,21 @@ public class MatrixMultiplyExperiment implements Serializable {
         }
     }
 
+    public static MatrixMultiplyExperimentCalibration loadExperimentCalibration(File file) {
+        MatrixMultiplyExperimentCalibration matrixMultiplyExperimentCalibration = null;
+
+        try {
+            FileInputStream in = new FileInputStream(file);
+            XMLDecoder xmlDecoder = new XMLDecoder(in);
+            matrixMultiplyExperimentCalibration = (MatrixMultiplyExperimentCalibration) xmlDecoder.readObject();
+            xmlDecoder.close();
+        } catch (FileNotFoundException ex) {
+
+        } finally {
+            return matrixMultiplyExperimentCalibration;
+        }
+    }
+
     public Integer getMinMatrixSize() {
         return minMatrixSize;
     }

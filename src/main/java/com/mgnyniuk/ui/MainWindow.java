@@ -71,9 +71,12 @@ public class MainWindow extends Application {
     public static Map<Integer, GridSimOutput> outputMap;
 
     public static Experiment runningExperiment;
+    public static boolean isCalibrationFileUsing;
     public static Settings currentSettings;
     private static MatrixMultiplyExperiment matrixMultiplyExperiment;
     private static NBodyExperiment nBodyExperiment;
+    private static MatrixMultiplyExperimentCalibration matrixMultiplyExperimentCalibration;
+    private static NBodyExperimentCalibration nBodyExperimentCalibration;
 
     // Inputs and labels for settings MatrixMultiplyExperiment
     private static Label mainParametersForMatrixMultiplyLbl;
@@ -182,10 +185,10 @@ public class MainWindow extends Application {
 
         calibrationFileChkBox = new CheckBox("Файл Калібрування");
         calibrationFileChkBox.setIndeterminate(false);
-        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setOpenCalibrationFileBtnDisable(new_val ? false : true));
-
-        openCalibrationFileBtn = new Button("Відкрити");
-        openCalibrationFileBtn.setDisable(true);
+        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> {
+            setOpenCalibrationFileBtnDisable(new_val ? false : true);
+            isCalibrationFileUsing = new_val;
+        });
 
         experimentDescriptionForNBodyLbl = new Label("Опис:");
         experimentDescriptionForNBodyTextField = new TextField("<No Experiment Description>");
@@ -291,10 +294,10 @@ public class MainWindow extends Application {
 
         calibrationFileChkBox = new CheckBox("Файл Калібрування");
         calibrationFileChkBox.setIndeterminate(false);
-        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setOpenCalibrationFileBtnDisable(new_val ? false : true));
-
-        openCalibrationFileBtn = new Button("Відкрити");
-        openCalibrationFileBtn.setDisable(true);
+        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> {
+            setOpenCalibrationFileBtnDisable(new_val ? false : true);
+            isCalibrationFileUsing = new_val;
+        });
 
         experimentConditionsForMatrixMultiplyLbl = new Label("Граничні умови експерименту:");
 
@@ -574,12 +577,20 @@ public class MainWindow extends Application {
         openExperimentBtn.setGraphic(openExperimentBtnImg);
         openExperimentBtn.setDisable(true);
 
+        // open calibration file Button
+        openCalibrationFileBtn = new Button("Відкрити");
+        openCalibrationFileBtn.setDisable(true);
+
         newExperimentBtn.setOnAction(actionEvent -> {
             try {
                 // delete configs files from previous experiment
                 FileManager.deleteFilesFromCurrentDir("config.*\\.xml");
                 // delete outputs files from previous experiment
                 FileManager.deleteFilesFromCurrentDir("output.*\\.xml");
+
+                // Calibration file reset
+                isCalibrationFileUsing = false;
+                openCalibrationFileBtn.setDisable(true);
 
                 // Disable show results btn
                 showResultsBtn.setDisable(true);
@@ -673,6 +684,25 @@ public class MainWindow extends Application {
                     setVisibleModelingParameterBlockForNBody(false);
                 }
             }
+        });
+
+        openCalibrationFileBtn.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+
+            // Set extension filter
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("GSC files (*.gsc)", "*.gsc");
+            fileChooser.getExtensionFilters().addAll(extFilter);
+
+            // Show open file dialog
+            File file = fileChooser.showOpenDialog(null);
+            if (file != null) {
+                if (runningExperiment == Experiment.MATRIXMULTIPLY) {
+                    matrixMultiplyExperimentCalibration = MatrixMultiplyExperiment.loadExperimentCalibration(file);
+                } else if (runningExperiment == Experiment.NBODY) {
+                    nBodyExperimentCalibration = NBodyExperiment.loadExperimentCalibration(file);
+                }
+            }
+
         });
 
         runSimulationBtn.setOnAction(actionEvent -> {
