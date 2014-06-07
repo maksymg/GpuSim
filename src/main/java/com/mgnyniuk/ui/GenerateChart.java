@@ -35,11 +35,6 @@ public class GenerateChart {
         // output list
         List<GridSimOutput> outputList = ConfigurationUtil.loadOutputs(outputStartIndex, outputEndIndex);
 
-        // matrix size list
-        /*for (int i = 1; i <= 4096 / 16; i++) {
-            matrixSizeList.add(16 * i);
-        } */
-
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
         series.setName("Time/Matrix Size");
 
@@ -48,6 +43,7 @@ public class GenerateChart {
         }
 
         ac.getData().add(series);
+        ac.setCreateSymbols(false);
 
         return ac;
     }

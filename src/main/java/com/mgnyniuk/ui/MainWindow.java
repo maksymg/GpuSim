@@ -64,6 +64,7 @@ public class MainWindow extends Application {
     private static Button settingsBtn;
     private static Button saveAsBtn;
     private static Button openExperimentBtn;
+    private static Button openCalibrationFileBtn;
 
     // Hazelcast distributed maps
     public static Map<Integer, GridSimConfig> configMap;
@@ -82,6 +83,8 @@ public class MainWindow extends Application {
 
     private static Label experimentDescriptionForMatrixMultiplyLbl;
     private static TextField experimentDescriptionForMatrixMultiplyTextField;
+
+    private static CheckBox calibrationFileChkBox;
 
     private static Label experimentConditionsForMatrixMultiplyLbl;
 
@@ -177,6 +180,13 @@ public class MainWindow extends Application {
         experimentNameForNBodyLbl = new Label("Ім'я");
         experimentNameForNBodyTextField = new TextField("<No Experiment Name>");
 
+        calibrationFileChkBox = new CheckBox("Файл Калібрування");
+        calibrationFileChkBox.setIndeterminate(false);
+        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setOpenCalibrationFileBtnDisable(new_val ? false : true));
+
+        openCalibrationFileBtn = new Button("Відкрити");
+        openCalibrationFileBtn.setDisable(true);
+
         experimentDescriptionForNBodyLbl = new Label("Опис:");
         experimentDescriptionForNBodyTextField = new TextField("<No Experiment Description>");
 
@@ -226,41 +236,44 @@ public class MainWindow extends Application {
         inputsGridPane.add(experimentDescriptionForNBodyLbl, 1, 3);
         inputsGridPane.add(experimentDescriptionForNBodyTextField, 2, 3);
 
-        inputsGridPane.add(experimentConditionsForNBodyLbl, 1, 4);
+        inputsGridPane.add(calibrationFileChkBox, 1, 4);
+        inputsGridPane.add(openCalibrationFileBtn, 2, 4);
+
+        inputsGridPane.add(experimentConditionsForNBodyLbl, 1, 5);
         inputsGridPane.setColumnSpan(experimentConditionsForNBodyLbl, 2);
 
-        inputsGridPane.add(minNLbl, 1, 5);
-        inputsGridPane.add(minNTextField, 2, 5);
+        inputsGridPane.add(minNLbl, 1, 6);
+        inputsGridPane.add(minNTextField, 2, 6);
 
-        inputsGridPane.add(maxNLbl, 1, 6);
-        inputsGridPane.add(maxNTextField, 2, 6);
+        inputsGridPane.add(maxNLbl, 1, 7);
+        inputsGridPane.add(maxNTextField, 2, 7);
 
-        inputsGridPane.add(minTPBLbl, 1, 7);
-        inputsGridPane.add(minTPBTextField, 2, 7);
+        inputsGridPane.add(minTPBLbl, 1, 8);
+        inputsGridPane.add(minTPBTextField, 2, 8);
 
-        inputsGridPane.add(maxTPBLbl, 1, 8);
-        inputsGridPane.add(maxTPBTextField, 2, 8);
+        inputsGridPane.add(maxTPBLbl, 1, 9);
+        inputsGridPane.add(maxTPBTextField, 2, 9);
 
-        inputsGridPane.add(modelingParametersForNBodyChkBox, 1, 9);
+        inputsGridPane.add(modelingParametersForNBodyChkBox, 1, 10);
         inputsGridPane.setColumnSpan(modelingParametersForNBodyChkBox, 2);
 
-        inputsGridPane.add(gpuCoreRatingLbl, 1, 10);
-        inputsGridPane.add(gpuCoreRatingTextField, 2, 10);
+        inputsGridPane.add(gpuCoreRatingLbl, 1, 11);
+        inputsGridPane.add(gpuCoreRatingTextField, 2, 11);
 
-        inputsGridPane.add(limitationsDividerLbl, 1, 11);
-        inputsGridPane.add(limitationsDividerTextField, 2, 11);
+        inputsGridPane.add(limitationsDividerLbl, 1, 12);
+        inputsGridPane.add(limitationsDividerTextField, 2, 12);
 
-        inputsGridPane.add(smallTPBPenaltyWeightLbl, 1, 12);
-        inputsGridPane.add(smallTPBPenaltyWeightTextField, 2, 12);
+        inputsGridPane.add(smallTPBPenaltyWeightLbl, 1, 13);
+        inputsGridPane.add(smallTPBPenaltyWeightTextField, 2, 13);
 
-        inputsGridPane.add(largeTPBPenaltyWeightLbl, 1, 13);
-        inputsGridPane.add(largeTPBPenaltyWeightTextField, 2, 13);
+        inputsGridPane.add(largeTPBPenaltyWeightLbl, 1, 14);
+        inputsGridPane.add(largeTPBPenaltyWeightTextField, 2, 14);
 
-        inputsGridPane.add(multiplicativeLengthScaleFactorLbl, 1, 14);
-        inputsGridPane.add(multiplicativeLengthScaleFactorTextField, 2, 14);
+        inputsGridPane.add(multiplicativeLengthScaleFactorLbl, 1, 15);
+        inputsGridPane.add(multiplicativeLengthScaleFactorTextField, 2, 15);
 
-        inputsGridPane.add(additiveLengthScaleFactorLbl, 1, 15);
-        inputsGridPane.add(additiveLengthScaleFactorTextField, 2, 15);
+        inputsGridPane.add(additiveLengthScaleFactorLbl, 1, 16);
+        inputsGridPane.add(additiveLengthScaleFactorTextField, 2, 16);
     }
 
     public static void prepareFieldsForMatrixMultiplyExperiment(MatrixMultiplyExperiment matrixMultiplyExperiment) {
@@ -275,6 +288,13 @@ public class MainWindow extends Application {
 
         experimentDescriptionForMatrixMultiplyLbl = new Label("Опис:");
         experimentDescriptionForMatrixMultiplyTextField = new TextField("<No Experiment Description>");
+
+        calibrationFileChkBox = new CheckBox("Файл Калібрування");
+        calibrationFileChkBox.setIndeterminate(false);
+        calibrationFileChkBox.selectedProperty().addListener((ov, old_val, new_val) -> setOpenCalibrationFileBtnDisable(new_val ? false : true));
+
+        openCalibrationFileBtn = new Button("Відкрити");
+        openCalibrationFileBtn.setDisable(true);
 
         experimentConditionsForMatrixMultiplyLbl = new Label("Граничні умови експерименту:");
 
@@ -328,47 +348,50 @@ public class MainWindow extends Application {
         inputsGridPane.add(experimentDescriptionForMatrixMultiplyLbl, 1, 3);
         inputsGridPane.add(experimentDescriptionForMatrixMultiplyTextField, 2, 3);
 
-        inputsGridPane.add(experimentConditionsForMatrixMultiplyLbl, 1, 4);
+        inputsGridPane.add(calibrationFileChkBox, 1, 4);
+        inputsGridPane.add(openCalibrationFileBtn, 2, 4);
+
+        inputsGridPane.add(experimentConditionsForMatrixMultiplyLbl, 1, 5);
         inputsGridPane.setColumnSpan(experimentConditionsForMatrixMultiplyLbl, 2);
 
-        inputsGridPane.add(minMatrixSizeLbl, 1, 5);
-        inputsGridPane.add(minMatrixSizeTextField, 2, 5);
+        inputsGridPane.add(minMatrixSizeLbl, 1, 6);
+        inputsGridPane.add(minMatrixSizeTextField, 2, 6);
 
-        inputsGridPane.add(maxMatrixSizeLbl, 1, 6);
-        inputsGridPane.add(maxMatrixSizeTextField, 2, 6);
+        inputsGridPane.add(maxMatrixSizeLbl, 1, 7);
+        inputsGridPane.add(maxMatrixSizeTextField, 2, 7);
 
-        inputsGridPane.add(matrixSizeIncrementLbl, 1, 7);
-        inputsGridPane.add(matrixSizeIncrementTextField, 2, 7);
+        inputsGridPane.add(matrixSizeIncrementLbl, 1, 8);
+        inputsGridPane.add(matrixSizeIncrementTextField, 2, 8);
 
-        inputsGridPane.add(blockSizeLbl, 1, 8);
-        inputsGridPane.add(blockSizeTextField, 2, 8);
+        inputsGridPane.add(blockSizeLbl, 1, 9);
+        inputsGridPane.add(blockSizeTextField, 2, 9);
 
-        inputsGridPane.add(modelingParametersForMatrixMultiplyChkBox, 1, 9);
+        inputsGridPane.add(modelingParametersForMatrixMultiplyChkBox, 1, 10);
         inputsGridPane.setColumnSpan(modelingParametersForMatrixMultiplyChkBox, 2);
 
-        inputsGridPane.add(numberOfCpuLbl, 1, 10);
-        inputsGridPane.add(numberOfCpuTextField, 2, 10);
+        inputsGridPane.add(numberOfCpuLbl, 1, 11);
+        inputsGridPane.add(numberOfCpuTextField, 2, 11);
 
-        inputsGridPane.add(rankOfCpuLbl, 1, 11);
-        inputsGridPane.add(rankOfCpuTextField, 2, 11);
+        inputsGridPane.add(rankOfCpuLbl, 1, 12);
+        inputsGridPane.add(rankOfCpuTextField, 2, 12);
 
-        inputsGridPane.add(numberOfGpuLbl, 1, 12);
-        inputsGridPane.add(numberOfGpuTextField, 2, 12);
+        inputsGridPane.add(numberOfGpuLbl, 1, 13);
+        inputsGridPane.add(numberOfGpuTextField, 2, 13);
 
-        inputsGridPane.add(rankOfGpuLbl, 1, 13);
-        inputsGridPane.add(rankOfGpuTextField, 2, 13);
+        inputsGridPane.add(rankOfGpuLbl, 1, 14);
+        inputsGridPane.add(rankOfGpuTextField, 2, 14);
 
-        inputsGridPane.add(resourceCapacityLbl, 1, 14);
-        inputsGridPane.add(resourceCapacityTextField, 2, 14);
+        inputsGridPane.add(resourceCapacityLbl, 1, 15);
+        inputsGridPane.add(resourceCapacityTextField, 2, 15);
 
-        inputsGridPane.add(linkCapacityLbl, 1, 15);
-        inputsGridPane.add(linkCapacityTextField, 2, 15);
+        inputsGridPane.add(linkCapacityLbl, 1, 16);
+        inputsGridPane.add(linkCapacityTextField, 2, 16);
 
-        inputsGridPane.add(loadOperationCostLbl, 1, 16);
-        inputsGridPane.add(loadOperationCostTextField, 2, 16);
+        inputsGridPane.add(loadOperationCostLbl, 1, 17);
+        inputsGridPane.add(loadOperationCostTextField, 2, 17);
 
-        inputsGridPane.add(saveOperationCostLbl, 1, 17);
-        inputsGridPane.add(saveOperationCostTextField, 2, 17);
+        inputsGridPane.add(saveOperationCostLbl, 1, 18);
+        inputsGridPane.add(saveOperationCostTextField, 2, 18);
     }
 
     public static void setInputsGridPaneVisiblity(boolean isVisible) {
@@ -390,6 +413,8 @@ public class MainWindow extends Application {
     public static void setOpenExperimentBtnDisable(boolean isDisabled) {
         openExperimentBtn.setDisable(isDisabled);
     }
+
+    public static void setOpenCalibrationFileBtnDisable(boolean isDisabled) { openCalibrationFileBtn.setDisable(isDisabled); }
 
     public static void runSimulation() {
 
