@@ -75,7 +75,7 @@ public class MainWindow extends Application {
     public static boolean isCalibrationFileUsing;
     public static Settings currentSettings;
     private static MatrixMultiplyExperiment matrixMultiplyExperiment;
-    private static NBodyExperiment nBodyExperiment;
+    public static NBodyExperiment nBodyExperiment;
     private static MatrixMultiplyExperimentCalibration matrixMultiplyExperimentCalibration;
     private static NBodyExperimentCalibration nBodyExperimentCalibration;
 
@@ -780,8 +780,6 @@ public class MainWindow extends Application {
                             @Override
                             public void changed(ObservableValue observableValue, Object o, Object new_value) {
                                 gridPane.getChildren().clear();
-                                Integer key = null;
-
 
                                 if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().equals("Relative Error (Matrix Size)".toLowerCase())) {
 
@@ -866,9 +864,19 @@ public class MainWindow extends Application {
 
                 } else {
                     if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(pattern.toLowerCase())) {
-                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                        if (isCalibrationFileUsing) {
+                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
+                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                        } else {
+                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                        }
                     } else {
-                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB());
+                        if (isCalibrationFileUsing) {
+                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB(),
+                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                        } else {
+                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB());
+                        }
                     }
                     cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
                         @Override
@@ -884,7 +892,12 @@ public class MainWindow extends Application {
                                         break; //breaking because its one to one map
                                     }
                                 }
-                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+                                if (isCalibrationFileUsing) {
+                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider(),
+                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                                } else {
+                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+                                }
                             } else {
                                 for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
                                     if (new_value.equals(entry.getValue())) {
@@ -892,7 +905,13 @@ public class MainWindow extends Application {
                                         break; //breaking because its one to one map
                                     }
                                 }
-                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key);
+                                if (isCalibrationFileUsing) {
+                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key,
+                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+
+                                } else {
+                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key);
+                                }
                             }
 
                             GridPane.setConstraints(nBodyChart, 0, 1);
@@ -919,7 +938,7 @@ public class MainWindow extends Application {
         resultsStage.show();
     }
 
-    private static AreaChart<Number, Number> nBodyChart;
+    private static LineChart<Number, Number> nBodyChart;
 
     public static void setVisibleModelingParameterBlockForMatrixMultiply(boolean isVisible) {
         numberOfCpuLbl.setVisible(isVisible);

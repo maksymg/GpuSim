@@ -22,11 +22,11 @@ public class NBodyExperimentCalibration implements Serializable {
         this.simulationTimeList = simulationTimeList;
     }
 
-    public List<Integer> getnList() {
+    public List<Integer> getNList() {
         return nList;
     }
 
-    public void setnList(List<Integer> nList) {
+    public void setNList(List<Integer> nList) {
         this.nList = nList;
     }
 
