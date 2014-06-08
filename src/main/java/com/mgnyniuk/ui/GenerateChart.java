@@ -85,6 +85,36 @@ public class GenerateChart {
         return ac;
     }
 
+    public static LineChart<Number, Number> getRelativeErrorChartForMatrixMultiplyExperiment(int outputStartIndex,
+                                                                                      int outputEndIndex, List<Integer> matrixSizeList, List<Double> mmCalibrationExperimentSimulationTimeList) throws FileNotFoundException {
+
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
+
+        // setup chart
+        ac.setTitle("Simulation Result");
+        xAxis.setLabel("Matrix size");
+        yAxis.setLabel("Relative Error [%]");
+
+        // output list
+        List<GridSimOutput> outputList = ConfigurationUtil.loadOutputs(outputStartIndex, outputEndIndex);
+
+        LineChart.Series<Number, Number> relativeErrorSeries = new LineChart.Series<>();
+        relativeErrorSeries.setName("Relative Error");
+
+
+        for (int i = 0; i < mmCalibrationExperimentSimulationTimeList.size(); i++) {
+            double relativeError = ((Math.abs(mmCalibrationExperimentSimulationTimeList.get(i) - outputList.get(i).getTotalSimulationTime()) /mmCalibrationExperimentSimulationTimeList.get(i))/mmCalibrationExperimentSimulationTimeList.size()) * 100;
+            relativeErrorSeries.getData().add(new LineChart.Data<>(matrixSizeList.get(i), relativeError));
+        }
+
+        ac.getData().addAll(relativeErrorSeries);
+        ac.setCreateSymbols(false);
+
+        return ac;
+    }
+
     public static AreaChart<Number, Number> getResultChartForMatrixMultiplyExperiment(Map<Integer, GridSimOutput> outputMap, List<Integer> matrixSizeList) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();

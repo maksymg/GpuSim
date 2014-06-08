@@ -19,6 +19,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -743,6 +744,8 @@ public class MainWindow extends Application {
         root.getChildren().add(masterGridPane);
     }
 
+    private static LineChart<Number, Number> matrixMultiplyExperimentChart;
+
     public static void showResults() {
         Group resultsRoot = new Group();
         Stage resultsStage = new Stage();
@@ -754,8 +757,65 @@ public class MainWindow extends Application {
 
                 } else {
                     if (isCalibrationFileUsing) {
-                        resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperimentAndCalibrationExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
-                                matrixMultiplyExperimentCalibration.getMatrixSizeList(), matrixMultiplyExperimentCalibration.getSimulationTimeList()));
+
+                        GridPane gridPane = new GridPane();
+                        // ChoiceBox for type of graphic
+                        ChoiceBox cb = new ChoiceBox();
+                        cb.getItems().addAll("Relative Error (Matrix Size)", "Time (Matrix Size)");
+                        cb.getSelectionModel().selectFirst();
+
+                        GridPane.setConstraints(cb, 0, 0);
+                        GridPane.setMargin(cb, new Insets(10, 10, 10, 10));
+                        GridPane.setHalignment(cb, HPos.LEFT);
+
+                        if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().equals("Relative Error (Matrix Size)".toLowerCase())) {
+                            matrixMultiplyExperimentChart = GenerateChart.getRelativeErrorChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
+                                    matrixMultiplyExperimentCalibration.getSimulationTimeList());
+                        } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().equals("Time (Matrix Size)".toLowerCase())) {
+                            matrixMultiplyExperimentChart = GenerateChart.getResultChartForMatrixMultiplyExperimentAndCalibrationExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
+                                    matrixMultiplyExperimentCalibration.getMatrixSizeList(), matrixMultiplyExperimentCalibration.getSimulationTimeList());
+                        }
+
+                        cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+                            @Override
+                            public void changed(ObservableValue observableValue, Object o, Object new_value) {
+                                gridPane.getChildren().clear();
+                                Integer key = null;
+
+
+                                if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().equals("Relative Error (Matrix Size)".toLowerCase())) {
+
+                                    try {
+                                        matrixMultiplyExperimentChart = GenerateChart.getRelativeErrorChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
+                                                matrixMultiplyExperimentCalibration.getSimulationTimeList());
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().equals("Time (Matrix Size)".toLowerCase())) {
+
+                                    try {
+                                        matrixMultiplyExperimentChart = GenerateChart.getResultChartForMatrixMultiplyExperimentAndCalibrationExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList(),
+                                                matrixMultiplyExperimentCalibration.getMatrixSizeList(), matrixMultiplyExperimentCalibration.getSimulationTimeList());
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                GridPane.setConstraints(matrixMultiplyExperimentChart, 0, 1);
+                                GridPane.setMargin(matrixMultiplyExperimentChart, new Insets(10, 10, 10, 10));
+                                GridPane.setHalignment(matrixMultiplyExperimentChart, HPos.LEFT);
+
+                                gridPane.getChildren().addAll(cb, matrixMultiplyExperimentChart);
+                            }
+                        });
+
+                        GridPane.setConstraints(matrixMultiplyExperimentChart, 0, 1);
+                        GridPane.setMargin(matrixMultiplyExperimentChart, new Insets(10, 10, 10, 10));
+                        GridPane.setHalignment(matrixMultiplyExperimentChart, HPos.LEFT);
+
+                        gridPane.getChildren().addAll(cb, matrixMultiplyExperimentChart);
+
+                        resultsRoot.getChildren().add(gridPane);
 
                     } else {
                         resultsRoot.getChildren().add(GenerateChart.getResultChartForMatrixMultiplyExperiment(0, matrixMultiplyExperiment.getMatrixSizeList().size(), matrixMultiplyExperiment.getMatrixSizeList()));
