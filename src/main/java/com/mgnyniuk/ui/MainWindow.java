@@ -438,13 +438,13 @@ public class MainWindow extends Application {
                     maxMatrixSize, matrixSizeIncrement, blockSize, numberOfCpu, rankOfCpu, numberOfGpu,
                     rankOfGpu, resourceCapacity, linkCapacity, loadOperationCost, saveOperationCost);
 
-            logger.info("Створено експеримент множення матриць.");
-
-            List<Future<Boolean>> futuresList = new ArrayList<>();
+            logger.info("Matrix Multiply Experiment is Created!");
 
             try {
 
                 if (currentSettings.getIsDistributedSimulation()) {
+
+                    List<Future<Boolean>> futuresList = new ArrayList<>();
 
                     configMap = hzInstance.getMap("configMap");
                     outputMap = hzInstance.getMap("outputMap");
@@ -487,13 +487,13 @@ public class MainWindow extends Application {
                 }
 
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
             } catch (ExecutionException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
             }
         }
 
@@ -515,15 +515,61 @@ public class MainWindow extends Application {
                     limitationDivider, smallTPBPenaltyWeight, largeTPBPenaltyWeight, multiplicativeLengthScaleFactor,
                     additiveLengthScaleFactor);
 
+            logger.info("NBody experiment is created!");
+
             try {
-                List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
-                nBodyExperiment.serializeSimulationConfigs(inputs);
-                ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(inputs.size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
-                nBodyExperimentRunner.runExperimnet();
+
+                if (currentSettings.getIsDistributedSimulation()) {
+                    List<Future<Boolean>> futuresList = new ArrayList<>();
+
+                    configMap = hzInstance.getMap("configMap");
+                    outputMap = hzInstance.getMap("outputMap");
+
+                    IExecutorService executorService = hzInstance.getExecutorService("default");
+                    Set<HazelcastInstance> hazelcastInstanceSet = Hazelcast.getAllHazelcastInstances();
+
+                    // get hazelcast members
+                    Set<Member> memberSet = new HashSet<>();
+                    for (HazelcastInstance hazelcastInstance : hazelcastInstanceSet) {
+                        memberSet = hazelcastInstance.getCluster().getMembers();
+                    }
+
+                    List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
+                    nBodyExperiment.populateConfigMap(inputs, configMap);
+
+                    logger.info("Hazelcast configMap is populated with nBody configs.");
+
+                    int quantityPerClusterNode = inputs.size() / memberSet.size();
+                    int startIndexPerNode = 0;
+
+                    for (Member member : memberSet) {
+                        System.out.println(startIndexPerNode);
+                        Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
+                                currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
+                        futuresList.add(future);
+                        startIndexPerNode += quantityPerClusterNode;
+                    }
+
+                    for (Future<Boolean> future : futuresList) {
+                        System.out.println(future.get());
+                    }
+
+                    System.out.println("OutputMap Size: " + outputMap.size());
+
+                } else {
+                    List<NBodyExperiment.Input> inputs = nBodyExperiment.createInputs();
+                    nBodyExperiment.serializeSimulationConfigs(inputs);
+                    ExperimentRunner nBodyExperimentRunner = new ExperimentRunner(inputs.size(), currentSettings.getQuantityOfParallelSimulation(), null, 0);
+                    nBodyExperimentRunner.runExperimnet();
+                }
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getStackTrace().toString());
+            } catch (InterruptedException e) {
+                logger.error(e.getStackTrace().toString());
+            } catch (ExecutionException e) {
+                logger.error(e.getStackTrace().toString());
             }
 
         }

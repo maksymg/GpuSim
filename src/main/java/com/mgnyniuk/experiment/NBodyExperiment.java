@@ -1,9 +1,6 @@
 package com.mgnyniuk.experiment;
 
-import com.gpusim2.config.GridSimConfig;
-import com.gpusim2.config.GridSimGridletConfig;
-import com.gpusim2.config.GridSimMachineConfig;
-import com.gpusim2.config.GridSimResourceConfig;
+import com.gpusim2.config.*;
 import com.mgnyniuk.util.Calc;
 
 import java.beans.XMLDecoder;
@@ -15,6 +12,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by maksym on 5/4/14.
@@ -112,7 +110,7 @@ public class NBodyExperiment {
 
     public void serializeSimulationConfigs(List<Input> inputs) throws FileNotFoundException {
 
-        for(int i=0; i < inputs.size(); i++) {
+        for (int i = 0; i < inputs.size(); i++) {
             GridSimConfig gridSimConfig = createSimulationConfig(inputs.get(i));
 
             FileOutputStream out = new FileOutputStream("config" + i + ".xml");
@@ -124,8 +122,17 @@ public class NBodyExperiment {
 
     }
 
+    public void populateConfigMap(List<Input> inputs, Map<Integer, GridSimConfig> configMap) throws FileNotFoundException {
+        for (int i = 0; i < inputs.size(); i++) {
+            GridSimConfig gridSimConfig = createSimulationConfig(inputs.get(i));
+
+            configMap.put(i, gridSimConfig);
+        }
+
+    }
+
     private GridSimGridletConfig createGridletConfig(int n, int threadsPerBlock, double limitationsDivider, double smallTPBPenaltyWeight,
-                                     double largeTPBPenaltyWeight, double multiplicativeLengthScaleFactor, double additiveLengthScaleFactor) {
+                                                     double largeTPBPenaltyWeight, double multiplicativeLengthScaleFactor, double additiveLengthScaleFactor) {
 
         double smallTPBPenalty = (smallTPBPenaltyWeight * n * Calc.log(n, 2) * Calc.log(n, 2) * Calc.log(threadsPerBlock, 2)) / (threadsPerBlock);
         double largeTPBPenalty = threadsPerBlock * n * largeTPBPenaltyWeight;
@@ -179,8 +186,7 @@ public class NBodyExperiment {
 
         } catch (FileNotFoundException ex) {
 
-        }
-        finally {
+        } finally {
             return nBodyExperiment;
         }
     }
