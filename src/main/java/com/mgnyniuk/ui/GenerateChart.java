@@ -54,7 +54,7 @@ public class GenerateChart {
                                                                                                               List<Double> mmCalibrationExperimentSimulationTimeList) throws FileNotFoundException {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
-        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
+        LineChart<Number, Number> ac = new LineChart<>(xAxis, yAxis);
 
         // setup chart
         ac.setTitle("Simulation Result");
@@ -115,24 +115,25 @@ public class GenerateChart {
         return ac;
     }
 
-    public static AreaChart<Number, Number> getResultChartForMatrixMultiplyExperiment(Map<Integer, GridSimOutput> outputMap, List<Integer> matrixSizeList) {
+    public static LineChart<Number, Number> getResultChartForMatrixMultiplyExperiment(Map<Integer, GridSimOutput> outputMap, List<Integer> matrixSizeList) {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
-        AreaChart<Number, Number> ac = new AreaChart<Number, Number>(xAxis, yAxis);
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
 
         // setup chart
         ac.setTitle("Simulation Result");
         xAxis.setLabel("Matrix size");
         yAxis.setLabel("Time");
 
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        LineChart.Series<Number, Number> series = new LineChart.Series<>();
         series.setName("Time/Matrix Size");
 
         for (int i = 0; i < matrixSizeList.size() - 1; i++) {
-            series.getData().add(new XYChart.Data<Number, Number>(matrixSizeList.get(i), outputMap.get(i).getTotalSimulationTime()));
+            series.getData().add(new LineChart.Data<>(matrixSizeList.get(i), outputMap.get(i).getTotalSimulationTime()));
         }
 
         ac.getData().add(series);
+        ac.setCreateSymbols(false);
 
         return ac;
     }

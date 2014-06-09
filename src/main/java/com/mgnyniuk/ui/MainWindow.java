@@ -17,23 +17,18 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -882,6 +877,7 @@ public class MainWindow extends Application {
 
                 if (currentSettings.getIsDistributedSimulation()) {
 
+
                 } else {
                     if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(experimentPatternTPB.toLowerCase())) {
                         if (isCalibrationFileUsing) {
@@ -1044,6 +1040,11 @@ public class MainWindow extends Application {
 
         init(stage);
         stage.show();
+    }
+
+    @Override
+    public void stop() {
+        hzInstance.shutdown();
     }
 
     public static void main(String[] args) {
