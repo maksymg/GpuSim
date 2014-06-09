@@ -348,6 +348,156 @@ public class GenerateChart {
         return ac;
     }
 
+    public static LineChart<Number, Number> getRelativeErrorChartForNBodyExperimentForNToTime(Map<Integer, GridSimConfig> configMap,
+                                                                                              Map<Integer, GridSimOutput> outputMap, int TPB, List<Integer> nList, List<Integer> tpbList, List<Double> simulationTimeList) {
+
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
+
+        // setup chart
+        ac.setTitle("Simulation Result");
+        xAxis.setLabel("N");
+        yAxis.setLabel("Relative Error [%]");
+
+        LineChart.Series<Number, Number> relativeErrorSeries = new LineChart.Series<>();
+        relativeErrorSeries.setName("Relative Error");
+
+        // Model
+        List<Integer> configNumberWithFoundTPBParameterList = new ArrayList<>();
+        List<Integer> NForFoundTPBList = new ArrayList<>();
+        List<Double> timeList = new ArrayList<>();
+
+        // Real Parallel System
+        List<Integer> indexesWithFoundTPBParameterFromCalibrationList = new ArrayList<>();
+        List<Integer> NForFoundTPBFromCalibrationList = new ArrayList<>();
+        List<Double> timeListFromCalibration = new ArrayList<>();
+
+        for (int i = 0; i < configMap.size(); i++) {
+            // MODEL
+            // GridSimGridletConfig and GridSimGridletResource are in a single copy
+            GridSimGridletConfig gridSimGridletConfig = configMap.get(i).getGridlets().get(0);
+            GridSimResourceConfig gridSimResourceConfig = configMap.get(i).getResources().get(0);
+
+            if (gridSimResourceConfig.getCount() == TPB) {
+                configNumberWithFoundTPBParameterList.add(i);
+                NForFoundTPBList.add(gridSimGridletConfig.getCount() * MainWindow.nBodyExperiment.getLimitationDivider());
+
+            }
+        }
+
+        for (int i = 0; i < tpbList.size(); i++) {
+            // REAL PARALLEL SYSTEM
+            if (tpbList.get(i).equals(TPB)) {
+                indexesWithFoundTPBParameterFromCalibrationList.add(i);
+                NForFoundTPBFromCalibrationList.add(nList.get(i));
+            }
+        }
+
+        // MODEL
+        for (Integer index : configNumberWithFoundTPBParameterList) {
+            timeList.add(outputMap.get(index).getTotalSimulationTime());
+        }
+
+        // REAL PARALLEL SYSTEM
+        for (Integer index : indexesWithFoundTPBParameterFromCalibrationList) {
+            timeListFromCalibration.add(simulationTimeList.get(index));
+        }
+
+        // list reference to NumberWithFoundN with min size
+        List<Integer> list;
+        if (configNumberWithFoundTPBParameterList.size() >= indexesWithFoundTPBParameterFromCalibrationList.size()) {
+            list = indexesWithFoundTPBParameterFromCalibrationList;
+        } else {
+            list = configNumberWithFoundTPBParameterList;
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            double relativeError = ((Math.abs(timeListFromCalibration.get(i) - timeList.get(i)) / timeListFromCalibration.get(i)) / list.size()) * 100;
+            relativeErrorSeries.getData().add(new LineChart.Data<>(NForFoundTPBFromCalibrationList.get(i), relativeError));
+        }
+
+        ac.getData().addAll(relativeErrorSeries);
+        ac.setCreateSymbols(false);
+
+        return ac;
+    }
+
+    public static LineChart<Number, Number> getRelativeErrorChartForNBodyExperimentForTPBToTime(Map<Integer, GridSimConfig> configMap,
+                                                                                              Map<Integer, GridSimOutput> outputMap, int N, List<Integer> nList, List<Integer> tpbList, List<Double> simulationTimeList) {
+
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<Number, Number> ac = new LineChart<Number, Number>(xAxis, yAxis);
+
+        // setup chart
+        ac.setTitle("Simulation Result");
+        xAxis.setLabel("TPB");
+        yAxis.setLabel("Relative Error [%]");
+
+        LineChart.Series<Number, Number> relativeErrorSeries = new LineChart.Series<>();
+        relativeErrorSeries.setName("Relative Error");
+
+        // Model
+        List<Integer> configNumberWithFoundNParameterList = new ArrayList<>();
+        List<Integer> TPBForFoundNList = new ArrayList<>();
+        List<Double> timeList = new ArrayList<>();
+
+        // Real Parallel System
+        List<Integer> indexesWithFoundNParameterFromCalibrationList = new ArrayList<>();
+        List<Integer> TPBForFoundNFromCalibrationList = new ArrayList<>();
+        List<Double> timeListFromCalibration = new ArrayList<>();
+
+        for (int i = 0; i < configMap.size(); i++) {
+            // MODEL
+            // GridSimGridletConfig and GridSimGridletResource are in a single copy
+            GridSimGridletConfig gridSimGridletConfig = configMap.get(i).getGridlets().get(0);
+            GridSimResourceConfig gridSimResourceConfig = configMap.get(i).getResources().get(0);
+
+            if (gridSimGridletConfig.getCount() == N) {
+                configNumberWithFoundNParameterList.add(i);
+                TPBForFoundNList.add(gridSimResourceConfig.getCount());
+
+            }
+        }
+
+        for (int i = 0; i < nList.size(); i++) {
+            // REAL PARALLEL SYSTEM
+            if (nList.get(i).equals(N * MainWindow.nBodyExperiment.getLimitationDivider())) {
+                indexesWithFoundNParameterFromCalibrationList.add(i);
+                TPBForFoundNFromCalibrationList.add(tpbList.get(i));
+            }
+        }
+
+        // MODEL
+        for (Integer index : configNumberWithFoundNParameterList) {
+            timeList.add(outputMap.get(index).getTotalSimulationTime());
+        }
+
+        // REAL PARALLEL SYSTEM
+        for (Integer index : indexesWithFoundNParameterFromCalibrationList) {
+            timeListFromCalibration.add(simulationTimeList.get(index));
+        }
+
+        // list reference to NumberWithFoundN with min size
+        List<Integer> list;
+        if (configNumberWithFoundNParameterList.size() >= indexesWithFoundNParameterFromCalibrationList.size()) {
+            list = indexesWithFoundNParameterFromCalibrationList;
+        } else {
+            list = configNumberWithFoundNParameterList;
+        }
+
+        for (int i = 0; i < list.size(); i++) {
+            double relativeError = ((Math.abs(timeListFromCalibration.get(i) - timeList.get(i)) / timeListFromCalibration.get(i)) / list.size()) * 100;
+            relativeErrorSeries.getData().add(new LineChart.Data<>(TPBForFoundNFromCalibrationList.get(i), relativeError));
+        }
+
+        ac.getData().addAll(relativeErrorSeries);
+        ac.setCreateSymbols(false);
+
+        return ac;
+    }
+
     public static LineChart<Number, Number> getResultChartForNBodyExperimentNToTime(Map<Integer, GridSimConfig> configMap,
                                                                                     Map<Integer, GridSimOutput> outputMap, int TPB) {
         NumberAxis xAxis = new NumberAxis();
