@@ -461,10 +461,26 @@ public class MainWindow extends Application {
                     matrixMultiplyExperiment.populateConfigMap(matrixMultiplyExperiment.getMatrixSizeList(),
                             matrixMultiplyExperiment.getBlockSizeList(), configMap);
 
-                    int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
+                    //int quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
                     int startIndexPerNode = 0;
+                    int quantityPerClusterNode = 0;
+
+                    int j = 0;
 
                     for (Member member : memberSet) {
+                        j++;
+                        if (matrixMultiplyExperiment.getMatrixSizeList().size() % memberSet.size() != 0) {
+                            if (j == memberSet.size()) {
+                                quantityPerClusterNode = (matrixMultiplyExperiment.getMatrixSizeList().size() - matrixMultiplyExperiment.getMatrixSizeList().size() % memberSet.size()) / memberSet.size() + matrixMultiplyExperiment.getMatrixSizeList().size() % memberSet.size();
+                            } else {
+                                quantityPerClusterNode = (matrixMultiplyExperiment.getMatrixSizeList().size() - matrixMultiplyExperiment.getMatrixSizeList().size() % memberSet.size()) / memberSet.size();
+                            }
+
+                        } else {
+                            quantityPerClusterNode = matrixMultiplyExperiment.getMatrixSizeList().size() / memberSet.size();
+                        }
+
+                        logger.info("Member : " + member.getSocketAddress().getAddress().toString() + ":" + member.getSocketAddress().getPort() + " have " + quantityPerClusterNode + " tasks.");
                         System.out.println(startIndexPerNode);
                         Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
                                 currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
@@ -539,10 +555,28 @@ public class MainWindow extends Application {
 
                     logger.info("Hazelcast configMap is populated with nBody configs.");
 
-                    int quantityPerClusterNode = inputs.size() / memberSet.size();
-                    int startIndexPerNode = 0;
+                    logger.info("NBody inputs size: " + inputs.size());
 
+
+                    //int quantityPerClusterNode = inputs.size() / memberSet.size();
+                    int startIndexPerNode = 0;
+                    int quantityPerClusterNode = 0;
+
+                    int j = 0;
                     for (Member member : memberSet) {
+                        j++;
+                        if (inputs.size() % memberSet.size() != 0) {
+                            if (j == memberSet.size()) {
+                                quantityPerClusterNode = (inputs.size() - inputs.size() % memberSet.size()) / memberSet.size() + inputs.size() % memberSet.size();
+                            } else {
+                                quantityPerClusterNode = (inputs.size() - inputs.size() % memberSet.size()) / memberSet.size();
+                            }
+
+                        } else {
+                            quantityPerClusterNode = inputs.size() / memberSet.size();
+                        }
+
+                        logger.info("Member : " + member.getSocketAddress().getAddress().toString() + ":" + member.getSocketAddress().getPort() + " have " + quantityPerClusterNode + " tasks.");
                         System.out.println(startIndexPerNode);
                         Future<Boolean> future = executorService.submitToMember(new SimulationRunner(quantityPerClusterNode,
                                 currentSettings.getQuantityOfParallelSimulation(), startIndexPerNode), member);
@@ -786,6 +820,8 @@ public class MainWindow extends Application {
     }
 
     private static LineChart<Number, Number> matrixMultiplyExperimentChart;
+    private static Map<Integer, GridSimConfig> nBodyGridSimConfigMap;
+    private static Map<Integer, GridSimOutput> nBodyGridSimOutputMap;
 
     public static void showResults() {
         Group resultsRoot = new Group();
@@ -891,11 +927,11 @@ public class MainWindow extends Application {
 
                 GridPane gridPane = new GridPane();
 
-                Map<Integer, GridSimConfig> gridSimConfigMap;
-                Map<Integer, GridSimOutput> gridSimOutputMap;
 
-                gridSimConfigMap = ConfigurationUtil.deserializeConfigsToMap();
-                gridSimOutputMap = ConfigurationUtil.deserializeOutputsToMap();
+                if (!currentSettings.getIsDistributedSimulation()) {
+                    nBodyGridSimConfigMap = ConfigurationUtil.deserializeConfigsToMap();
+                    nBodyGridSimOutputMap = ConfigurationUtil.deserializeOutputsToMap();
+                }
 
 
                 // ChoiceBox for type of graphic
@@ -923,108 +959,111 @@ public class MainWindow extends Application {
 
                 if (currentSettings.getIsDistributedSimulation()) {
 
-
-                } else {
-                    if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(experimentPatternTPB.toLowerCase())) {
-                        if (isCalibrationFileUsing) {
-                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
-                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                        } else {
-                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
-                        }
-                    } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(experimentPatternN.toLowerCase())) {
-
-                        if (isCalibrationFileUsing) {
-                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB(),
-                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                        } else {
-                            nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinTPB());
-                        }
-                    } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(relativeErrorPatternTPB.toLowerCase())) {
-                        if (isCalibrationFileUsing)
-                            nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForTPBToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
-                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                    } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(relativeErrorPatternN.toLowerCase())) {
-                        if (isCalibrationFileUsing)
-                            nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForNToTime(gridSimConfigMap, gridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
-                                    nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                    }
-
-                    cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-                        @Override
-                        public void changed(ObservableValue observableValue, Object o, Object new_value) {
-                            gridPane.getChildren().clear();
-                            Integer key = null;
+                    nBodyGridSimConfigMap = configMap;
+                    nBodyGridSimOutputMap = outputMap;
 
 
-                            if (((String) new_value).toLowerCase().contains(experimentPatternTPB.toLowerCase())) {
-                                for (Map.Entry entry : timeNGraphicMap.entrySet()) {
-                                    if (new_value.equals(entry.getKey())) {
-                                        key = (Integer) entry.getValue();
-                                        break; //breaking because its one to one map
-                                    }
-                                }
-                                if (isCalibrationFileUsing) {
-                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider(),
-                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                                } else {
-                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
-                                }
-                            } else if (((String) new_value).toLowerCase().contains(experimentPatternN.toLowerCase())) {
-                                for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
-                                    if (new_value.equals(entry.getKey())) {
-                                        key = (Integer) entry.getValue();
-                                        break; //breaking because its one to one map
-                                    }
-                                }
-                                if (isCalibrationFileUsing) {
-                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key,
-                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-
-                                } else {
-                                    nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(gridSimConfigMap, gridSimOutputMap, key);
-                                }
-                            } else if (((String) new_value).toLowerCase().contains(relativeErrorPatternN.toLowerCase())) {
-                                for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
-                                    if (new_value.equals(entry.getKey())) {
-                                        key = (Integer) entry.getValue();
-                                        break; //breaking because its one to one map
-                                    }
-                                }
-                                if (isCalibrationFileUsing)
-                                    nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForNToTime(gridSimConfigMap, gridSimOutputMap, key,
-                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-                            } else if (((String) new_value).toLowerCase().contains(relativeErrorPatternTPB.toLowerCase())) {
-                                for (Map.Entry entry : timeNGraphicMap.entrySet()) {
-                                    if (new_value.equals(entry.getKey())) {
-                                        key = (Integer) entry.getValue();
-                                        break; //breaking because its one to one map
-                                    }
-                                }
-                                if (isCalibrationFileUsing)
-                                    nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForTPBToTime(gridSimConfigMap, gridSimOutputMap, key / nBodyExperiment.getLimitationDivider(),
-                                            nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
-
-                            }
-
-
-                            GridPane.setConstraints(nBodyChart, 0, 1);
-                            GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
-                            GridPane.setHalignment(nBodyChart, HPos.LEFT);
-
-                            gridPane.getChildren().addAll(cb, nBodyChart);
-                        }
-                    });
-
-                    GridPane.setConstraints(nBodyChart, 0, 1);
-                    GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
-                    GridPane.setHalignment(nBodyChart, HPos.LEFT);
-
-                    gridPane.getChildren().addAll(cb, nBodyChart);
-
-                    resultsRoot.getChildren().add(gridPane);
                 }
+                if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(experimentPatternTPB.toLowerCase())) {
+                    if (isCalibrationFileUsing) {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
+                                nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                    } else {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider());
+                    }
+                } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(experimentPatternN.toLowerCase())) {
+
+                    if (isCalibrationFileUsing) {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinTPB(),
+                                nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                    } else {
+                        nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinTPB());
+                    }
+                } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(relativeErrorPatternTPB.toLowerCase())) {
+                    if (isCalibrationFileUsing)
+                        nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
+                                nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                } else if (((String) cb.getSelectionModel().getSelectedItem()).toLowerCase().contains(relativeErrorPatternN.toLowerCase())) {
+                    if (isCalibrationFileUsing)
+                        nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, nBodyExperiment.getMinN() / nBodyExperiment.getLimitationDivider(),
+                                nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                }
+
+                cb.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ObservableValue observableValue, Object o, Object new_value) {
+                        gridPane.getChildren().clear();
+                        Integer key = null;
+
+
+                        if (((String) new_value).toLowerCase().contains(experimentPatternTPB.toLowerCase())) {
+                            for (Map.Entry entry : timeNGraphicMap.entrySet()) {
+                                if (new_value.equals(entry.getKey())) {
+                                    key = (Integer) entry.getValue();
+                                    break; //breaking because its one to one map
+                                }
+                            }
+                            if (isCalibrationFileUsing) {
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key / nBodyExperiment.getLimitationDivider(),
+                                        nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                            } else {
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key / nBodyExperiment.getLimitationDivider());
+                            }
+                        } else if (((String) new_value).toLowerCase().contains(experimentPatternN.toLowerCase())) {
+                            for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
+                                if (new_value.equals(entry.getKey())) {
+                                    key = (Integer) entry.getValue();
+                                    break; //breaking because its one to one map
+                                }
+                            }
+                            if (isCalibrationFileUsing) {
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentAndCalibrationExperimentNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key,
+                                        nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+
+                            } else {
+                                nBodyChart = GenerateChart.getResultChartForNBodyExperimentNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key);
+                            }
+                        } else if (((String) new_value).toLowerCase().contains(relativeErrorPatternN.toLowerCase())) {
+                            for (Map.Entry entry : timeTPBGraphicMap.entrySet()) {
+                                if (new_value.equals(entry.getKey())) {
+                                    key = (Integer) entry.getValue();
+                                    break; //breaking because its one to one map
+                                }
+                            }
+                            if (isCalibrationFileUsing)
+                                nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForNToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key,
+                                        nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+                        } else if (((String) new_value).toLowerCase().contains(relativeErrorPatternTPB.toLowerCase())) {
+                            for (Map.Entry entry : timeNGraphicMap.entrySet()) {
+                                if (new_value.equals(entry.getKey())) {
+                                    key = (Integer) entry.getValue();
+                                    break; //breaking because its one to one map
+                                }
+                            }
+                            if (isCalibrationFileUsing)
+                                nBodyChart = GenerateChart.getRelativeErrorChartForNBodyExperimentForTPBToTime(nBodyGridSimConfigMap, nBodyGridSimOutputMap, key / nBodyExperiment.getLimitationDivider(),
+                                        nBodyExperimentCalibration.getNList(), nBodyExperimentCalibration.getTpbList(), nBodyExperimentCalibration.getSimulationTimeList());
+
+                        }
+
+
+                        GridPane.setConstraints(nBodyChart, 0, 1);
+                        GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
+                        GridPane.setHalignment(nBodyChart, HPos.LEFT);
+
+                        gridPane.getChildren().addAll(cb, nBodyChart);
+                    }
+                });
+
+                GridPane.setConstraints(nBodyChart, 0, 1);
+                GridPane.setMargin(nBodyChart, new Insets(10, 10, 10, 10));
+                GridPane.setHalignment(nBodyChart, HPos.LEFT);
+
+                gridPane.getChildren().addAll(cb, nBodyChart);
+
+                resultsRoot.getChildren().add(gridPane);
             }
+
         } catch (FileNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
@@ -1090,7 +1129,11 @@ public class MainWindow extends Application {
 
     @Override
     public void stop() {
-        hzInstance.shutdown();
+
+        if (hzInstance != null) {
+            hzInstance.shutdown();
+            logger.info("Hazelcast instance is shutdown");
+        }
     }
 
     public static void main(String[] args) {
