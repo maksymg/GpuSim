@@ -28,7 +28,11 @@ public class ProgressWindow {
         startButton.setOnAction(actionEvent -> {
             Stage parentStage = (Stage)startButton.getScene().getWindow();
             pb.setProgress(0);
+            long startTime = System.currentTimeMillis();
             MainWindow.runSimulation();
+            long endTime   = System.currentTimeMillis();
+            long totalTime = endTime - startTime;
+            System.out.println("SimulationTime: " + (totalTime));
             pb.setProgress(1);
             MainWindow.setShowResultsBtnDisable(false);
             MainWindow.showResults();
