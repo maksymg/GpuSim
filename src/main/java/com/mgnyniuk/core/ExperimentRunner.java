@@ -34,7 +34,6 @@ public class ExperimentRunner {
 
     public Boolean runExperimnet() throws IOException {
 
-        //ConfigurationUtil.serializeConfigs(gridSimConfigList, startIndex);
         ThreadListener threadListener = new ThreadListener();
 
         int parallelPacks = 0;
@@ -62,7 +61,6 @@ public class ExperimentRunner {
                         String.format(CONFIG, (i + j * partProcessesQuantity)),
                         String.format(OUTPUT, (i + j * partProcessesQuantity)));
                 notifyingThread.addListener(threadListener);
-                //notifyingThread.start();
                 es.execute(notifyingThread);
             }
 
@@ -71,23 +69,8 @@ public class ExperimentRunner {
             while(!es.isTerminated()) {
                 continue;
             }
-
-            /*try {
-                boolean finshed = es.awaitTermination(1, TimeUnit.MINUTES);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
-
-            /*
-            while (threadListener.quantityOfEndedThreads != partProcessesQuantity) {
-                System.out.print(threadListener.quantityOfEndedThreads);
-                continue;
-            }
-            threadListener.quantityOfEndedThreads = 0;*/
-
         }
 
-        //ConfigurationUtil.loadOutputs(startIndex,partProcessesQuantity);
         return true;
     }
 
